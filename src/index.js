@@ -30,6 +30,10 @@ const staticPath = path.join(process.cwd(), 'public');
 console.log('Serving static files from:', staticPath);
 app.use(express.static(staticPath));
 
+app.get('/', (req, res) => {
+  res.send('Hello from the root route!');
+});
+
 
 // Rate limiter (20 requests/hour)
 const imageLimiter = rateLimit({

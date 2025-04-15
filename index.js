@@ -1,5 +1,4 @@
 import express from 'express';
-import cors from 'cors';
 import OpenAI from 'openai';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
@@ -17,10 +16,10 @@ const openai = new OpenAI({
   timeout: 20000
 });
 
+// Serve static files from the 'public' folder
+app.use(express.static(path.join(__dirname, 'public')));
+
 // Middlewares
-app.use(cors({
-  origin: 'https://domnik222.github.io/ai-image-generator' // Update to match your frontend's exact URL
-}));
 app.use(express.json({ limit: '5mb' }));
 
 // Rate limiter (20 requests/hour)
@@ -37,17 +36,7 @@ app.use('/generate-image', imageLimiter);
 const profilesPath = path.join(process.cwd(), 'styleprofiles.json');
 const styleProfiles = JSON.parse(fs.readFileSync(profilesPath, 'utf-8'));
 
-// Root route to handle GET requests to "/"
-app.get('/', (req, res) => {
-  res.send('API server is running. Use POST /generate-image to generate images.');
-});
-
-// Informational GET handler for "/generate-image"
-app.get('/generate-image', (req, res) => {
-  res.status(405).send('Method Not Allowed: Use POST to generate images.');
-});
-
-// Endpoint to generate images (POST)
+// Endpoint to generate images
 app.post('/generate-image', async (req, res) => {
   try {
     const { prompt, size = '1024x1024', quality = 'standard' } = req.body;
@@ -55,7 +44,6 @@ app.post('/generate-image', async (req, res) => {
     if (!prompt) return res.status(400).json({ error: 'Image description required' });
     if (prompt.length > 1000) return res.status(400).json({ error: 'Prompt too long (max 1000 chars)' });
 
-    // Select the desired style profile (hard-coded "style1" for now)
     const style = styleProfiles.style1;
     const styleGuide = `Style Profile: ${style.name}. Description: ${style.description}. Design Directives: ${Object.entries(style.designDirectives)
       .map(([k, v]) => `${k}: ${v}`)

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Agent 3 - Glassy Icons AI</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    #preview {
+      margin-top: 20px;
+      max-width: 100%;
+    }
+    .loading {
+      filter: blur(5px);
+    }
+  </style>
+</head>
+<body>
+  <h1>Agent 3: Glassy Icons</h1>
+
+  <form id="imageForm">
+    <textarea
+      id="prompt"
+      placeholder="Describe the glassy icon you want to generate..."
+      rows="4"
+      style="width: 100%"
+    ></textarea>
+    <br />
+    <button type="submit">Generate Icon</button>
+  </form>
+
+  <div id="result">
+    <img id="preview" src="" alt="Generated icon" />
+    <p id="status"></p>
+  </div>
+
+  <script>
+    const form = document.getElementById('imageForm');
+    const preview = document.getElementById('preview');
+    const status = document.getElementById('status');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      preview.classList.add('loading');
+      status.textContent = 'Generating...';
+
+      try {
+        // Change the endpoint to /generate-image3 for Agent 3
+        const response = await fetch('/generate-image3', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            prompt: document.getElementById('prompt').value,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          preview.src = data.image_url;
+          status.textContent = `Revised prompt: ${data.revised_prompt}`;
+        } else {
+          status.textContent = `Error: ${data.error}`;
+        }
+      } catch (err) {
+        console.error(err);
+        status.textContent = 'Connection failed - is the server running?';
+      } finally {
+        preview.classList.remove('loading');
+      }
+    });
+  </script>
+</body>
+</html>

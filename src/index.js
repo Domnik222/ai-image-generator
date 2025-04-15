@@ -19,7 +19,7 @@ const __dirname = path.dirname(__filename);
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
   maxRetries: 2,
-  timeout: 20000
+  timeout: 30000
 });
 
 // Middleware

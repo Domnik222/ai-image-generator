@@ -99,9 +99,9 @@
   },
   "style3": {
     "name": "Abstract Expressionism",
-    "style_reference": "https://x.com/jameslaurents/status/1830591087104479639/photo/1","https://x.com/gerecajain/status/1909542542598627551/photo/1","https://x.com/gerecajain/status/1909542542598627551/photo/1"
-    "description": "Bold and spontaneous composition with energetic brushstrokes and vibrant color contrasts.",
-    "aesthetic": "Expressive, free-form, and emotionally charged visuals.",
+    "style_reference": "https://x.com/jameslaurents/status/1830591087104479639/photo/1","https://x.com/gerecajain/status/1909542542598627551/photo/1","https://x.com/gerecajain/status/1909542542598627551/photo/1",
+    "description": "Glassy 3D objects, on single color background, colorfull lighstrokes coming trough the glass and getting blury and distracted..",
+    "aesthetic": "Minimalistic, glassy, lights with blur",
     "colorScheme": ["#FF4500", "#FFD700", "#6A5ACD"]
   }
 }

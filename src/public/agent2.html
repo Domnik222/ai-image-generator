@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>AI Agent 2 - Futuristic Art</title>
+  <meta charset="UTF-8" />
+  <title>Agent 2 - AI Image Generator</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -20,22 +20,21 @@
   </style>
 </head>
 <body>
-  <h1>Generate Futuristic AI Art</h1>
-  
+  <h1>Agent 2: Cyberdreams AI</h1>
+
   <form id="imageForm">
-    <textarea 
-      id="prompt" 
-      placeholder="Describe the image you want to generate..." 
+    <textarea
+      id="prompt"
+      placeholder="Describe the image you want to generate..."
       rows="4"
       style="width: 100%"
-      required
     ></textarea>
-    <br>
+    <br />
     <button type="submit">Generate Image</button>
   </form>
 
   <div id="result">
-    <img id="preview" src="" alt="Generated image">
+    <img id="preview" src="" alt="Generated image" />
     <p id="status"></p>
   </div>
 
@@ -46,32 +45,31 @@
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      
+
       preview.classList.add('loading');
-      status.textContent = 'Generating image...';
+      status.textContent = 'Generating...';
 
       try {
-        // Send the POST request to the new endpoint for Agent 2
         const response = await fetch('/generate-image2', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+          },
           body: JSON.stringify({
             prompt: document.getElementById('prompt').value,
-            size: '1024x1024',  // You may allow user to adjust these
-            quality: 'standard'
-          })
+          }),
         });
 
         const data = await response.json();
-        
+
         if (response.ok) {
           preview.src = data.image_url;
           status.textContent = `Revised prompt: ${data.revised_prompt}`;
         } else {
           status.textContent = `Error: ${data.error}`;
         }
-        
       } catch (err) {
+        console.error(err);
         status.textContent = 'Connection failed - is the server running?';
       } finally {
         preview.classList.remove('loading');

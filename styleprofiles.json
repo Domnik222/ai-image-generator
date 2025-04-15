@@ -1,0 +1,61 @@
+{
+    "style1": {
+      "name": "Geometric High-Contrast Logo Style",
+      "notes": {
+        "refinements": "Anchor-to-anchor lines must maintain logical angle progression and avoid abrupt or jagged joins.",
+        "styleContinuity": "Maintain geometric precision while allowing for slight expressive exaggeration (horns, eyes, claws, etc.)"
+      },
+      "description": "A bold, stylized identity system based on angular geometric forms with clean vector edges and high visual contrast. Logos depict animals, creatures, or symbolic figures in white on a black background using refined anchor transitions for smoother lines.",
+      "subjectMatter": {
+        "type": "Animal, Creature, Symbolic Mask",
+        "poseVariety": [
+          "Profile (side view) with dynamic stance",
+          "Centered symmetrical pose",
+          "Mid-action movement (charging, climbing, coiled)"
+        ],
+        "exampleSubjects": [
+          "Bison",
+          "Elephant",
+          "Sloth",
+          "Bull",
+          "Owl",
+          "Crocodile",
+          "Oni Mask or Demonic Face"
+        ]
+      },
+      "fileGuidelines": {
+        "background": "Solid black only",
+        "resolution": "Minimum 1024x1024px",
+        "transparency": false,
+        "exportFormats": [
+          "SVG",
+          "PNG"
+        ],
+        "vectorCleanliness": "No overlapping paths, optimized points, and consistent anchor spacing"
+      },
+      "designDirectives": {
+        "sizing": "Fits within a square or circular composition; edge-to-edge minimal margin",
+        "balance": "Maintain visual balance between weight and negative space",
+        "geometry": "Use straight edges and triangular/diamond forms as the foundation",
+        "symmetry": "Used for mask-style or owl-like icons; asymmetry allowed in dynamic animals",
+        "anchorSmoothing": "Minimize harsh transitions by adjusting Bezier handles while retaining straight edges"
+      },
+      "brandingApplication": {
+        "usage": "Apparel, digital branding, merchandise, social identity",
+        "trademark": "Optional monogram or symbol may be included subtly",
+        "exclusivity": "Each figure should feel unique but clearly part of the same visual language"
+      },
+      "visualCharacteristics": {
+        "stroke": "None used",
+        "contrast": "High-contrast black and white",
+        "fillType": "Solid fill (no gradients or outlines)",
+        "edgeStyle": "Angular with softened directional flow; no curves, but paths transition cleanly between points",
+        "colorScheme": {
+          "background": "#000000",
+          "foreground": "#FFFFFF"
+        },
+        "lineQuality": "Smooth vector transitions between anchor points, no jagged or pixelated edges"
+      }
+    }
+  }
+  

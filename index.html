@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Image Generator</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+    #preview { margin-top: 20px; max-width: 100%; }
+    .loading { filter: blur(5px); }
+  </style>
+</head>
+<body>
+  <h1>Generate AI Art</h1>
+  
+  <form id="imageForm">
+    <textarea 
+      id="prompt" 
+      placeholder="Describe the image you want to generate..." 
+      rows="4"
+      style="width: 100%"
+    ></textarea>
+    <br>
+    <button type="submit">Generate Image</button>
+  </form>
+
+  <div id="result">
+    <img id="preview" src="" alt="Generated image">
+    <p id="status"></p>
+  </div>
+
+  <script>
+    const form = document.getElementById('imageForm');
+    const preview = document.getElementById('preview');
+    const status = document.getElementById('status');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      preview.classList.add('loading');
+      status.textContent = 'Generating...';
+
+      try {
+        const response = await fetch('http://localhost:3001/generate-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt: document.getElementById('prompt').value
+          })
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+          preview.src = data.image_url;
+          status.textContent = `Revised prompt: ${data.revised_prompt}`;
+        } else {
+          status.textContent = `Error: ${data.error}`;
+        }
+        
+      } catch (err) {
+        status.textContent = 'Connection failed - is the server running?';
+      } finally {
+        preview.classList.remove('loading');
+      }
+    });
+  </script>
+</body>
+</html>

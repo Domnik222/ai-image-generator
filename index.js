@@ -19,7 +19,7 @@ const openai = new OpenAI({
 
 // Middlewares
 app.use(cors({
-  origin: 'https://domnik222.github.io' // Replace with your GitHub Pages URL
+  origin: 'https://domnik222.github.io/ai-image-generator' // Update to match your frontend's exact URL
 }));
 app.use(express.json({ limit: '5mb' }));
 
@@ -39,10 +39,15 @@ const styleProfiles = JSON.parse(fs.readFileSync(profilesPath, 'utf-8'));
 
 // Root route to handle GET requests to "/"
 app.get('/', (req, res) => {
-  res.send('API server is running. Use /generate-image to generate images.');
+  res.send('API server is running. Use POST /generate-image to generate images.');
 });
 
-// Endpoint to generate images
+// Informational GET handler for "/generate-image"
+app.get('/generate-image', (req, res) => {
+  res.status(405).send('Method Not Allowed: Use POST to generate images.');
+});
+
+// Endpoint to generate images (POST)
 app.post('/generate-image', async (req, res) => {
   try {
     const { prompt, size = '1024x1024', quality = 'standard' } = req.body;

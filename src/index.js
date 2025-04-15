@@ -30,7 +30,7 @@ const staticPath = path.join(__dirname, 'public');
 console.log('✅ Serving static files from:', staticPath);
 app.use(express.static(staticPath));
 
-// Rate limiters (20 requests/hour)
+// Rate limiter (20 requests/hour)
 const limiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 20,
@@ -52,22 +52,59 @@ app.post('/generate-image2', limiter, async (req, res) => {
   await generateImageWithStyle(req, res, 'style2');
 });
 
-// Image generation logic
+// Image generation logic with conditional style guide formatting
 async function generateImageWithStyle(req, res, styleKey) {
   try {
     const { prompt, size = '1024x1024', quality = 'standard' } = req.body;
 
-    if (!prompt) return res.status(400).json({ error: 'Image description required' });
-    if (prompt.length > 1000) return res.status(400).json({ error: 'Prompt too long (max 1000 chars)' });
+    if (!prompt)
+      return res.status(400).json({ error: 'Image description required' });
+    if (prompt.length > 1000)
+      return res
+        .status(400)
+        .json({ error: 'Prompt too long (max 1000 chars)' });
 
+    // Log styleProfiles for debugging
+    console.log("🧠 styleProfiles:", styleProfiles);
     const style = styleProfiles[styleKey];
-    if (!style) return res.status(400).json({ error: `Style '${styleKey}' not found.` });
+    if (!style) {
+      console.error(`Style '${styleKey}' not found in JSON.`);
+      return res.status(400).json({ error: `Style '${styleKey}' not found.` });
+    }
 
-    const styleGuide = `Style Profile: ${style.name}. Description: ${style.description}. Design Directives: ${Object.entries(style.designDirectives)
-      .map(([k, v]) => `${k}: ${v}`).join(', ')}. Visual Characteristics: ${Object.entries(style.visualCharacteristics)
-      .map(([k, v]) => `${k}: ${v}`).join(', ')}.`;
+    console.log(`Using style: ${style.name}`);
+    console.log("User prompt:", prompt);
+
+    let styleGuide = '';
+
+    if (styleKey === 'style2') {
+      // Build the style guide using "visual_elements" for style2
+      styleGuide = `Style Profile: ${style.name}. ${style.description}. Visual Elements: ${Object.entries(style.visual_elements)
+        .map(([key, value]) => {
+          if (Array.isArray(value)) {
+            return `${key}: ${value.join(', ')}`;
+          } else if (typeof value === 'object') {
+            return `${key}: ${Object.entries(value)
+              .map(([k, v]) => `${k}: ${v}`)
+              .join(', ')}`;
+          } else {
+            return `${key}: ${value}`;
+          }
+        })
+        .join(', ')}`;
+    } else {
+      // Build style guide for style1
+      styleGuide = `Style Profile: ${style.name}. Description: ${style.description}. Design Directives: ${Object.entries(style.designDirectives)
+        .map(([k, v]) => `${k}: ${v}`)
+        .join(', ')}. Visual Characteristics: ${Object.entries(style.visualCharacteristics)
+        .map(([k, v]) => `${k}: ${v}`)
+        .join(', ')}.`;
+    }
 
     const finalPrompt = `Professional digital artwork, 4K resolution. ${styleGuide} Please create an image that depicts: ${prompt}`;
+
+    // Log final prompt for debugging
+    console.log("🎨 Final prompt:", finalPrompt);
 
     const response = await openai.images.generate({
       model: 'dall-e-3',
@@ -87,7 +124,7 @@ async function generateImageWithStyle(req, res, styleKey) {
     });
 
   } catch (error) {
-    console.error('🔥 DALL·E Error:', error.message);
+    console.error('🔥 DALL·E Error:', error);
     const errorMessage = error.message.includes('content policy')
       ? 'Prompt rejected: violates content policy'
       : error.message.includes('billing')
@@ -103,7 +140,11 @@ async function generateImageWithStyle(req, res, styleKey) {
 
 // Health check
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', service: 'DALL·E Image Generator', limits: '20 requests/hour' });
+  res.json({
+    status: 'ok',
+    service: 'DALL·E Image Generator',
+    limits: '20 requests/hour'
+  });
 });
 
 // Dynamic port

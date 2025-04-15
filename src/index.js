@@ -26,6 +26,11 @@ app.use(express.static(path.join(process.cwd(), 'public')));
 // Middlewares
 app.use(express.json({ limit: '5mb' }));
 
+const staticPath = path.join(process.cwd(), 'public');
+console.log('Serving static files from:', staticPath);
+app.use(express.static(staticPath));
+
+
 // Rate limiter (20 requests/hour)
 const imageLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour

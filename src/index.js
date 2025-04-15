@@ -10,10 +10,6 @@ dotenv.config();
 const app = express();
 app.set('trust proxy', 1); // Trust the first proxy (e.g., Render)
 
-import { fileURLToPath } from 'url';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
   maxRetries: 2,
@@ -21,19 +17,10 @@ const openai = new OpenAI({
 });
 
 // Serve static files from the 'public' folder
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(process.cwd(), 'public')));
 
 // Middlewares
 app.use(express.json({ limit: '5mb' }));
-
-const staticPath = path.join(process.cwd(), 'public');
-console.log('Serving static files from:', staticPath);
-app.use(express.static(staticPath));
-
-app.get('/', (req, res) => {
-  res.send('Hello from the root route!');
-});
-
 
 // Rate limiter (20 requests/hour)
 const imageLimiter = rateLimit({

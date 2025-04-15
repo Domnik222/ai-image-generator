@@ -42,14 +42,17 @@ const limiter = rateLimit({
 const profilesPath = path.join(process.cwd(), 'styleprofiles.json');
 const styleProfiles = JSON.parse(fs.readFileSync(profilesPath, 'utf-8'));
 
-// Image generation for Agent 1
+// Endpoints for the agents
 app.post('/generate-image', limiter, async (req, res) => {
   await generateImageWithStyle(req, res, 'style1');
 });
 
-// Image generation for Agent 2
 app.post('/generate-image2', limiter, async (req, res) => {
   await generateImageWithStyle(req, res, 'style2');
+});
+
+app.post('/generate-image3', limiter, async (req, res) => {
+  await generateImageWithStyle(req, res, 'style3');
 });
 
 // Image generation logic with conditional style guide formatting
@@ -60,11 +63,8 @@ async function generateImageWithStyle(req, res, styleKey) {
     if (!prompt)
       return res.status(400).json({ error: 'Image description required' });
     if (prompt.length > 1000)
-      return res
-        .status(400)
-        .json({ error: 'Prompt too long (max 1000 chars)' });
+      return res.status(400).json({ error: 'Prompt too long (max 1000 chars)' });
 
-    // Log styleProfiles for debugging
     console.log("🧠 styleProfiles:", styleProfiles);
     const style = styleProfiles[styleKey];
     if (!style) {
@@ -76,9 +76,8 @@ async function generateImageWithStyle(req, res, styleKey) {
     console.log("User prompt:", prompt);
 
     let styleGuide = '';
-
     if (styleKey === 'style2') {
-      // Build the style guide using "visual_elements" for style2
+      // Build style guide for style2 using "visual_elements"
       styleGuide = `Style Profile: ${style.name}. ${style.description}. Visual Elements: ${Object.entries(style.visual_elements)
         .map(([key, value]) => {
           if (Array.isArray(value)) {
@@ -92,8 +91,12 @@ async function generateImageWithStyle(req, res, styleKey) {
           }
         })
         .join(', ')}`;
+    } else if (styleKey === 'style3') {
+      // Build style guide for style3 using alternative keys (e.g., "aesthetic" and "colorScheme")
+      // Update the keys below to match your "style3" schema in your styleprofiles.json.
+      styleGuide = `Style Profile: ${style.name}. ${style.description}. Aesthetic: ${style.aesthetic ? style.aesthetic : 'Not specified'}. Color Scheme: ${style.colorScheme ? (Array.isArray(style.colorScheme) ? style.colorScheme.join(', ') : style.colorScheme) : 'Standard'}.`;
     } else {
-      // Build style guide for style1
+      // Default style guide (for style1)
       styleGuide = `Style Profile: ${style.name}. Description: ${style.description}. Design Directives: ${Object.entries(style.designDirectives)
         .map(([k, v]) => `${k}: ${v}`)
         .join(', ')}. Visual Characteristics: ${Object.entries(style.visualCharacteristics)
@@ -102,8 +105,6 @@ async function generateImageWithStyle(req, res, styleKey) {
     }
 
     const finalPrompt = `Professional digital artwork, 4K resolution. ${styleGuide} Please create an image that depicts: ${prompt}`;
-
-    // Log final prompt for debugging
     console.log("🎨 Final prompt:", finalPrompt);
 
     const response = await openai.images.generate({
@@ -153,4 +154,5 @@ app.listen(PORT, () => {
   console.log(`✅ Server running on http://localhost:${PORT}`);
   console.log(`• POST /generate-image`);
   console.log(`• POST /generate-image2`);
+  console.log(`• POST /generate-image3`);
 });

@@ -40,7 +40,7 @@
       status.textContent = 'Generating...';
 
       try {
-        const response = await fetch('https://ai-image-generator-p3s1.onrender.com/', {
+        const response = await fetch('https://ai-image-generator-p3s1.onrender.com/index.html', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

@@ -99,8 +99,12 @@
   },
   "style3": {
     "name": "Glassy icons",
-    "style_reference": "https://x.com/jameslaurents/status/1830591087104479639/photo/1","https://x.com/gerecajain/status/1909542542598627551/photo/1","https://x.com/gerecajain/status/1909542542598627551/photo/1",
-    "description": "Glassy 3D objects, on single color background, colorfull lighstrokes coming trough the glass and getting blury and distracted..",
+    "style_reference": [
+      "https://x.com/jameslaurents/status/1830591087104479639/photo/1",
+      "https://x.com/gerecajain/status/1909542542598627551/photo/1",
+      "https://x.com/gerecajain/status/1909542542598627551/photo/1"
+    ],
+    "description": "Glassy 3D objects, on single color background, colorful light strokes coming through the glass and getting blurry and distracted.",
     "aesthetic": "Minimalistic, glassy, lights with blur",
     "colorScheme": ["#FF4500", "#FFD700", "#6A5ACD"]
   }

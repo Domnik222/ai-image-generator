@@ -96,5 +96,11 @@
       "cssRules": "body { background-color: #F4F1EE; font-family: 'Helvetica Neue', sans-serif; color: #444; } .title { font-size: 2em; font-weight: 300; }",
       "layout": "Centered object with generous negative space; full responsiveness for all screen sizes"
     }
+  },
+  "style3": {
+    "name": "Abstract Expressionism",
+    "description": "Bold and spontaneous composition with energetic brushstrokes and vibrant color contrasts.",
+    "aesthetic": "Expressive, free-form, and emotionally charged visuals.",
+    "colorScheme": ["#FF4500", "#FFD700", "#6A5ACD"]
   }
 }

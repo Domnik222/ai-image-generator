@@ -19,7 +19,7 @@ const openai = new OpenAI({
 
 // Middlewares
 app.use(cors({
-  origin: 'https://github.com/Domnik222' // Replace with your GitHub Pages URL
+  origin: 'https://domnik222.github.io' // Replace with your GitHub Pages URL
 }));
 app.use(express.json({ limit: '5mb' }));
 
@@ -76,3 +76,29 @@ app.post('/generate-image', async (req, res) => {
     console.error('DALL-E Error:', error);
     const errorMessage = error.message.includes('content policy')
       ? 'Prompt rejected: violates content policy'
+      : error.message.includes('billing')
+        ? 'API billing issue'
+        : 'Image generation failed';
+
+    res.status(error.status || 500).json({
+      error: errorMessage,
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    service: 'DALL-E Image Generator',
+    limits: '20 requests/hour'
+  });
+});
+
+// Dynamic port for production (Render) or fallback to 3001 for local development
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+  console.log(`🖼️ Image server running on port ${PORT}`);
+  console.log(`• Endpoint: POST /generate-image`);
+});

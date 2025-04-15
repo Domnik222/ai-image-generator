@@ -9,6 +9,8 @@ import path from 'path';
 dotenv.config();
 
 const app = express();
+app.set('trust proxy', 1); // Trust the first proxy (e.g., Render)
+
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
   maxRetries: 2,
@@ -16,12 +18,14 @@ const openai = new OpenAI({
 });
 
 // Middlewares
-app.use(cors());
+app.use(cors({
+  origin: 'https://github.com/Domnik222' // Replace with your GitHub Pages URL
+}));
 app.use(express.json({ limit: '5mb' }));
 
 // Rate limiter (20 requests/hour)
 const imageLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000,
+  windowMs: 60 * 60 * 1000, // 1 hour
   max: 20,
   message: 'Too many image generation requests. Limit: 20/hour.',
   headers: true
@@ -33,7 +37,7 @@ app.use('/generate-image', imageLimiter);
 const profilesPath = path.join(process.cwd(), 'styleprofiles.json');
 const styleProfiles = JSON.parse(fs.readFileSync(profilesPath, 'utf-8'));
 
-// Your existing endpoint using the loaded JSON
+// Endpoint to generate images
 app.post('/generate-image', async (req, res) => {
   try {
     const { prompt, size = '1024x1024', quality = 'standard' } = req.body;
@@ -72,27 +76,3 @@ app.post('/generate-image', async (req, res) => {
     console.error('DALL-E Error:', error);
     const errorMessage = error.message.includes('content policy')
       ? 'Prompt rejected: violates content policy'
-      : error.message.includes('billing')
-        ? 'API billing issue'
-        : 'Image generation failed';
-
-    res.status(error.status || 500).json({
-      error: errorMessage,
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
-  }
-});
-
-app.get('/health', (req, res) => {
-  res.json({
-    status: 'ok',
-    service: 'DALL-E Image Generator',
-    limits: '20 requests/hour'
-  });
-});
-
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`🖼️ Image server running on port ${PORT}`);
-  console.log(`• Endpoint: POST http://localhost:${PORT}/generate-image`);
-});

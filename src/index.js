@@ -17,7 +17,7 @@ const openai = new OpenAI({
 });
 
 // Serve static files from the 'public' folder
-app.use(express.static(path.join(process.cwd(), 'public')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Middlewares
 app.use(express.json({ limit: '5mb' }));

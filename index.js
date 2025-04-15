@@ -37,6 +37,11 @@ app.use('/generate-image', imageLimiter);
 const profilesPath = path.join(process.cwd(), 'styleprofiles.json');
 const styleProfiles = JSON.parse(fs.readFileSync(profilesPath, 'utf-8'));
 
+// Root route to handle GET requests to "/"
+app.get('/', (req, res) => {
+  res.send('API server is running. Use /generate-image to generate images.');
+});
+
 // Endpoint to generate images
 app.post('/generate-image', async (req, res) => {
   try {

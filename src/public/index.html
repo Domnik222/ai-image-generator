@@ -1,68 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>AI Image Generator</title>
+  <meta charset="UTF-8" />
+  <title>AI Image Generator Hub</title>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-    #preview { margin-top: 20px; max-width: 100%; }
-    .loading { filter: blur(5px); }
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 50px;
+      background: #f9f9f9;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 30px;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 15px 30px;
+      margin: 10px;
+      font-size: 18px;
+      text-decoration: none;
+      background-color: #4a90e2;
+      color: white;
+      border-radius: 8px;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn:hover {
+      background-color: #357ab8;
+    }
   </style>
 </head>
 <body>
-  <h1>Generate AI Art</h1>
-  
-  <form id="imageForm">
-    <textarea 
-      id="prompt" 
-      placeholder="Describe the image you want to generate..." 
-      rows="4"
-      style="width: 100%"
-    ></textarea>
-    <br>
-    <button type="submit">Generate Image</button>
-  </form>
 
-  <div id="result">
-    <img id="preview" src="" alt="Generated image">
-    <p id="status"></p>
+  <h1>Welcome to AI Image Generator</h1>
+  <p>Choose an art style to begin:</p>
+
+  <div>
+    <a class="btn" href="agent1.html">🎨 Agent 1 (Style 1)</a>
+    <a class="btn" href="agent2.html">🖌️ Agent 2 (Style 2)</a>
   </div>
 
-  <script>
-    const form = document.getElementById('imageForm');
-    const preview = document.getElementById('preview');
-    const status = document.getElementById('status');
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      preview.classList.add('loading');
-      status.textContent = 'Generating...';
-
-      try {
-        const response = await fetch('/generate-image', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            prompt: document.getElementById('prompt').value
-          })
-        });
-
-        const data = await response.json();
-        
-        if (response.ok) {
-          preview.src = data.image_url;
-          status.textContent = `Revised prompt: ${data.revised_prompt}`;
-        } else {
-          status.textContent = `Error: ${data.error}`;
-        }
-        
-      } catch (err) {
-        status.textContent = 'Connection failed - is the server running?';
-      } finally {
-        preview.classList.remove('loading');
-      }
-    });
-  </script>
 </body>
 </html>

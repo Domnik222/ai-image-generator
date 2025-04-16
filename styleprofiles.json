@@ -104,6 +104,10 @@
       "https://x.com/gerecajain/status/1909542542598627551/photo/1",
       "https://x.com/gerecajain/status/1909542542598627551/photo/1"
     ],
+    "materials": {
+        "surface_texture": "Glassy, reflective, semi transparent surfaces",
+        "reflectivity": "A lot of reflectivity, add glossiness"
+      },
     "description": "Glassy 3D objects, on single color background, colorful light strokes coming through the glass and getting blurry and distracted.",
     "aesthetic": "Minimalistic, glassy, lights with blur",
     "colorScheme": ["#FF4500", "#FFD700", "#6A5ACD"]

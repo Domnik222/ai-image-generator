@@ -106,9 +106,9 @@
     ],
     "materials": {
         "surface_texture": "Glassy, reflective, semi transparent surfaces",
-        "reflectivity": "A lot of reflectivity, add glossiness"
+        "reflectivity": "A lot of reflectivity, add a bit of glossiness"
       },
-    "description": "Glassy 3D objects, on single color background, colorful light strokes coming through the glass and getting blurry and distracted.",
+    "description": "Glassy 3D objects, on single color background, subjectMatter should be semitransparent glassy surface, colorful light strokes coming through the glass and getting blurry and distracted.",
     "aesthetic": "Minimalistic, glassy, lights with blur",
     "colorScheme": ["#FF4500", "#FFD700", "#6A5ACD"]
   }

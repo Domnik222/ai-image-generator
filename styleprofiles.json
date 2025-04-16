@@ -98,61 +98,61 @@
     }
   },
   "style3": {
-    "name": "Isometric Line Art with Minimalist Fill",
-    "description": "An isometric illustration style using clean linework and minimal color fills. Designed for modern, structured visuals that blend technical precision with playful environmental storytelling.",
+    "name": "Isometric Vector Illustration",
+    "description": "A modern, three-dimensional isometric vector illustration style characterized by a clean, minimalistic design with a focus on geometric shapes and a predominantly monochromatic blue color palette. This style uses a consistent 30-degree angle projection to create depth and perspective while maintaining a flat, scalable aesthetic suitable for various applications.",
     "color_palette": {
-      "primary_color": "#3B44F6",
-      "accent_color": "#FFFFFF",
-      "background_color": "#FAF8E8",
-      "shadows": "#C7C9D9",
-      "additional_colors": [
-        "#D3D4E1",
-        "#F0F0F0"
-      ]
+      "primary_color": "#1E40AF",
+      "secondary_color": "#FFFFFF",
+      "accent_colors": ["#60A5FA", "#93C5FD", "#E6E6FA"],
+      "background_color": "#FFFFFF",
+      "shadows": "#93C5FD"
     },
     "line_style": {
       "type": "isometric",
-      "stroke_weight": "1.5px - 2px",
-      "line_color": "#3B44F6",
-      "edge_definition": "Clean, sharp contours with simplified geometric construction"
+      "stroke_weight": "1-2px, occasionally 3px",
+      "line_color": "#1E40AF",
+      "edge_definition": "Clean, smooth, and continuous with no texture or variation in thickness. Single outline per shape with occasional inner lines for detailing."
     },
     "shading_and_lighting": {
-      "technique": "Flat fills with soft gradients for occasional depth",
-      "shadow_color": "#C7C9D9",
-      "highlight_method": "White or unfilled areas for highlights",
+      "technique": "Flat shading with minimal gradients",
+      "shadow_color": "#93C5FD",
+      "highlight_method": "Implied through lighter areas or absence of shading",
       "light_source_direction": "Top-left"
     },
     "elements_and_theme": {
       "common_motifs": [
-        "Urban infrastructure",
-        "Cruise ships",
-        "Motorcycles",
-        "Landmarks (pyramids, statues)",
-        "Palm trees and nature icons"
+        "Architectural structures (buildings, pyramids)",
+        "Vehicles (cars, blimps, bicycles)",
+        "Vegetation (trees, tufts)",
+        "Human-made objects (maps, compasses)",
+        "Simplified human figures"
       ],
-      "style_of_objects": "Simplified, geometric with isometric 3D illusion",
-      "character_design": "Minimalist, faceless humanoids, used sparingly"
+      "style_of_objects": "Stylized and geometric with an isometric 3D effect, focusing on overall form rather than details",
+      "character_design": "Simplified figures with minimal details, used sparingly",
+      "subject": "Blends historical, natural, or urban elements with modern or technological twists",
+      "mood": "Calm, adventurous, and playful yet serene"
     },
     "environment_details": {
-      "setting_types": ["coastal", "urban", "historical"],
-      "background_elements": "Sparse decoration: palm trees, rocks, water ripples",
-      "texture": "Mostly flat with occasional texture lines to hint material"
+      "setting_types": ["varied, including urban, historical, natural"],
+      "background_elements": "Solid white or light color, occasionally with subtle additions like clouds or water ripples",
+      "texture": "None, with smooth and flat surfaces"
     },
     "visual_tone_and_feel": {
-      "mood": "Calm, clean, modern",
-      "target_audience": "Tech, travel, education, urban development",
+      "mood": "Calm, adventurous, and playful yet serene",
+      "target_audience": "Business, tech, educational, creative projects",
       "style_influences": [
-        "Infographics",
-        "3D isometric maps",
-        "Technical drawings"
+        "Isometric projection",
+        "Flat design",
+        "Minimalist detailing",
+        "Vector art"
       ]
     },
     "animation_potential": {
       "suitable_for_motion_graphics": true,
       "recommendations": [
-        "Layered parallax motion",
-        "Zoom/pan transitions",
-        "Object bounce or float animations"
+        "Layered parallax motion for depth",
+        "Zoom and pan transitions to explore the scene",
+        "Subtle animations of elements like floating balloons or moving vehicles"
       ]
     }
   }

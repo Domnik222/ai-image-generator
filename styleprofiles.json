@@ -99,11 +99,21 @@
   },
   "style3": {
     "name": "Glassy icons",
+    "notes": {
+      "refinements": "Anchor-to-anchor lines must maintain logical angle progression and avoid abrupt or jagged joins.",
+      "styleContinuity": "Maintain geometric precision, and semi transparent glassy subjectMatter surface"
+    },
     "style_reference": [
       "https://x.com/jameslaurents/status/1830591087104479639/photo/1",
       "https://x.com/gerecajain/status/1909542542598627551/photo/1",
       "https://x.com/gerecajain/status/1909542542598627551/photo/1"
     ],
+    "subjectMatter": {
+      "type": "Item, Building, Animal, Symbol, Gliph, Food,",
+      "poseVariety": [
+        "Profile (side view) with dynamic stance",
+        "Centered symmetrical pose",
+        },
     "materials": {
         "surface_texture": "Glassy, reflective, semi transparent surfaces",
         "reflectivity": "A lot of reflectivity, add a bit of glossiness"

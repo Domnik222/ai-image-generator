@@ -104,7 +104,7 @@ async function generateImageWithStyle(req, res, styleKey) {
         .join(', ')}.`;
     }
 
-    const finalPrompt = `Professional digital artwork, 4K resolution. ${styleGuide} Please create an image that depicts: ${prompt}`;
+    const finalPrompt = `Professional. ${styleGuide} Please create an image that depicts: ${prompt}`;
     console.log("🎨 Final prompt:", finalPrompt);
 
     const response = await openai.images.generate({

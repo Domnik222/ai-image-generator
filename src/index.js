@@ -68,43 +68,43 @@ async function generateImageWithStyle(req, res, styleKey) {
     console.log("🧠 styleProfiles:", styleProfiles);
     const style = styleProfiles[styleKey];
     if (!style) {
-      console.error(`Style '${styleKey}' not found in JSON.`);
-      return res.status(400).json({ error: `Style '${styleKey}' not found.` });
+      console.error(Style '${styleKey}' not found in JSON.);
+      return res.status(400).json({ error: Style '${styleKey}' not found. });
     }
 
-    console.log(`Using style: ${style.name}`);
+    console.log(Using style: ${style.name});
     console.log("User prompt:", prompt);
 
     let styleGuide = '';
     if (styleKey === 'style2') {
       // Build style guide for style2 using "visual_elements"
-      styleGuide = `Style Profile: ${style.name}. ${style.description}. Visual Elements: ${Object.entries(style.visual_elements)
+      styleGuide = Style Profile: ${style.name}. ${style.description}. Visual Elements: ${Object.entries(style.visual_elements)
         .map(([key, value]) => {
           if (Array.isArray(value)) {
-            return `${key}: ${value.join(', ')}`;
+            return ${key}: ${value.join(', ')};
           } else if (typeof value === 'object') {
-            return `${key}: ${Object.entries(value)
-              .map(([k, v]) => `${k}: ${v}`)
-              .join(', ')}`;
+            return ${key}: ${Object.entries(value)
+              .map(([k, v]) => ${k}: ${v})
+              .join(', ')};
           } else {
-            return `${key}: ${value}`;
+            return ${key}: ${value};
           }
         })
-        .join(', ')}`;
+        .join(', ')};
     } else if (styleKey === 'style3') {
       // Build style guide for style3 using alternative keys (e.g., "aesthetic" and "colorScheme")
       // Update the keys below to match your "style3" schema in your styleprofiles.json.
-      styleGuide = `Style Profile: ${style.name}. ${style.description}. Aesthetic: ${style.aesthetic ? style.aesthetic : 'Not specified'}. Color Scheme: ${style.colorScheme ? (Array.isArray(style.colorScheme) ? style.colorScheme.join(', ') : style.colorScheme) : 'Standard'}.`;
+      styleGuide = Style Profile: ${style.name}. ${style.description}. Aesthetic: ${style.aesthetic ? style.aesthetic : 'Not specified'}. Color Scheme: ${style.colorScheme ? (Array.isArray(style.colorScheme) ? style.colorScheme.join(', ') : style.colorScheme) : 'Standard'}.;
     } else {
       // Default style guide (for style1)
-      styleGuide = `Style Profile: ${style.name}. Description: ${style.description}. Design Directives: ${Object.entries(style.designDirectives)
-        .map(([k, v]) => `${k}: ${v}`)
+      styleGuide = Style Profile: ${style.name}. Description: ${style.description}. Design Directives: ${Object.entries(style.designDirectives)
+        .map(([k, v]) => ${k}: ${v})
         .join(', ')}. Visual Characteristics: ${Object.entries(style.visualCharacteristics)
-        .map(([k, v]) => `${k}: ${v}`)
-        .join(', ')}.`;
+        .map(([k, v]) => ${k}: ${v})
+        .join(', ')}.;
     }
 
-    const finalPrompt = `Professional. ${styleGuide} Please create an image that depicts: ${prompt}`;
+    const finalPrompt = Professional. ${styleGuide} Please create an image that depicts: ${prompt};
     console.log("🎨 Final prompt:", finalPrompt);
 
     const response = await openai.images.generate({
@@ -151,8 +151,8 @@ app.get('/health', (req, res) => {
 // Dynamic port
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
-  console.log(`✅ Server running on http://localhost:${PORT}`);
-  console.log(`• POST /generate-image`);
-  console.log(`• POST /generate-image2`);
-  console.log(`• POST /generate-image3`);
+  console.log(✅ Server running on http://localhost:${PORT});
+  console.log(• POST /generate-image);
+  console.log(• POST /generate-image2);
+  console.log(• POST /generate-image3);
 });

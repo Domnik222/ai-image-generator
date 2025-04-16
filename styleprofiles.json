@@ -1,140 +1,115 @@
 {
-  "style1": {
-    "name": "Geometric High-Contrast Logo Style",
-    "notes": {
-      "refinements": "Anchor-to-anchor lines must maintain logical angle progression and avoid abrupt or jagged joins.",
-      "styleContinuity": "Maintain geometric precision while allowing for slight expressive exaggeration (horns, eyes, claws, etc.)"
-    },
-    "description": "A bold, stylized identity system based on angular geometric forms with clean vector edges and high visual contrast. Logos depict animals, creatures, or symbolic figures in white on a black background using refined anchor transitions for smoother lines.",
-    "subjectMatter": {
-      "type": "Animal, Creature, Symbolic Mask",
-      "poseVariety": [
-        "Profile (side view) with dynamic stance",
-        "Centered symmetrical pose",
-        "Mid-action movement (charging, climbing, coiled)"
-      ],
-      "exampleSubjects": [
-        "Bison",
-        "Elephant",
-        "Sloth",
-        "Bull",
-        "Owl",
-        "Crocodile",
-        "Oni Mask or Demonic Face"
-      ]
-    },
-    "fileGuidelines": {
-      "background": "Solid black only",
-      "resolution": "Minimum 1024x1024px",
-      "transparency": false,
-      "exportFormats": [
-        "SVG",
-        "PNG"
-      ],
-      "vectorCleanliness": "No overlapping paths, optimized points, and consistent anchor spacing"
-    },
-    "designDirectives": {
-      "sizing": "Fits within a square or circular composition; edge-to-edge minimal margin",
-      "balance": "Maintain visual balance between weight and negative space",
-      "geometry": "Use straight edges and triangular/diamond forms as the foundation",
-      "symmetry": "Used for mask-style or owl-like icons; asymmetry allowed in dynamic animals",
-      "anchorSmoothing": "Minimize harsh transitions by adjusting Bezier handles while retaining straight edges"
-    },
-    "brandingApplication": {
-      "usage": "Apparel, digital branding, merchandise, social identity",
-      "trademark": "Optional monogram or symbol may be included subtly",
-      "exclusivity": "Each figure should feel unique but clearly part of the same visual language"
-    },
-    "visualCharacteristics": {
-      "stroke": "None used",
-      "contrast": "High-contrast black and white",
-      "fillType": "Solid fill (no gradients or outlines)",
-      "edgeStyle": "Angular with softened directional flow; no curves, but paths transition cleanly between points",
-      "colorScheme": {
-        "background": "#000000",
-        "foreground": "#FFFFFF"
+  "styles": {
+    "style1": {
+      "name": "Geometric High-Contrast Logo Style",
+      "notes": {
+        "refinements": "Anchor-to-anchor lines must maintain logical angle progression and avoid abrupt or jagged joins.",
+        "styleContinuity": "Maintain geometric precision while allowing for slight expressive exaggeration (horns, eyes, claws, etc.)"
       },
-      "lineQuality": "Smooth vector transitions between anchor points, no jagged or pixelated edges"
-    }
-  },
-  "style2": {
-    "name": "Minimalist 3D Illustration",
-    "description": "To create clean, aesthetically pleasing visuals that emphasize simplicity, approachability, and modernity.",
-    "visual_elements": {
-      "shape_language": "Rounded edges, smooth and soft forms with simplified geometry",
-      "colors": {
-        "primary_palette": ["Soft beige", "light gray", "warm orange"],
-        "accent_colors": ["Warm orange for focal elements"],
-        "shading": "Soft gradients with smooth transitions, avoiding harsh shadows or highlights"
+      "description": "A bold, stylized identity system based on angular geometric forms with clean vector edges and high visual contrast. Logos depict animals, creatures, or symbolic figures in white on a black background using refined anchor transitions for smoother lines.",
+      "subjectMatter": {
+        "type": "Animal, Creature, Symbolic Mask",
+        "poseVariety": [
+          "Profile (side view) with dynamic stance",
+          "Centered symmetrical pose",
+          "Mid-action movement (charging, climbing, coiled)"
+        ],
+        "exampleSubjects": [
+          "Bison",
+          "Elephant",
+          "Sloth",
+          "Bull",
+          "Owl",
+          "Crocodile",
+          "Oni Mask or Demonic Face"
+        ]
       },
-      "lighting": {
-        "type": "Soft, diffused lighting",
-        "source_direction": "Above and slightly to the right",
-        "shadow_style": "Subtle and diffused, no sharp or high-contrast shadows"
+      "fileGuidelines": {
+        "background": "Solid black only",
+        "resolution": "Minimum 1024x1024px",
+        "transparency": false,
+        "exportFormats": ["SVG", "PNG"],
+        "vectorCleanliness": "No overlapping paths, optimized points, and consistent anchor spacing"
       },
-      "materials": {
-        "surface_texture": "Matte, smooth surfaces with subtle shading",
-        "reflectivity": "Low to none, avoiding glossiness"
+      "designDirectives": {
+        "sizing": "Fits within a square or circular composition; edge-to-edge minimal margin",
+        "balance": "Maintain visual balance between weight and negative space",
+        "geometry": "Use straight edges and triangular/diamond forms as the foundation",
+        "symmetry": "Used for mask-style or owl-like icons; asymmetry allowed in dynamic animals",
+        "anchorSmoothing": "Minimize harsh transitions by adjusting Bezier handles while retaining straight edges"
       },
-      "composition": {
-        "object_presentation": "Single, central object displayed in isolation with ample negative space",
-        "perspective": "Slightly angled, giving a three-dimensional feel without extreme depth",
-        "background": "Solid, muted color that complements the object without distraction"
+      "brandingApplication": {
+        "usage": "Apparel, digital branding, merchandise, social identity",
+        "trademark": "Optional monogram or symbol may be included subtly",
+        "exclusivity": "Each figure should feel unique but clearly part of the same visual language"
       },
-      "typography": {
-        "font_style": "Minimalistic, sans-serif",
-        "text_placement": "Bottom-left corner with small, subtle text",
-        "color": "Gray, low-contrast against the background"
-      },
-      "rendering_style": {
-        "technique": "3D render with simplified, low-poly aesthetics",
-        "detail_level": "Medium detail, focusing on form and color over texture or intricacy"
+      "visualCharacteristics": {
+        "stroke": "None used",
+        "contrast": "High-contrast black and white",
+        "fillType": "Solid fill (no gradients or outlines)",
+        "edgeStyle": "Angular with softened directional flow; no curves, but paths transition cleanly between points",
+        "colorScheme": {
+          "background": "#000000",
+          "foreground": "#FFFFFF"
+        },
+        "lineQuality": "Smooth vector transitions between anchor points, no jagged or pixelated edges"
       }
     },
-    "styles": {
-      "theme": "light",
-      "cssRules": "body { background-color: #F4F1EE; font-family: 'Helvetica Neue', sans-serif; color: #444; } .title { font-size: 2em; font-weight: 300; }",
-      "layout": "Centered object with generous negative space; full responsiveness for all screen sizes"
-    }
-  },
- "style2": {
-    "name": "Minimalist 3D Illustration",
-    "description": "To create clean, aesthetically pleasing visuals that emphasize simplicity, approachability, and modernity.",
-    "visual_elements": {
-      "shape_language": "Rounded edges, smooth and soft forms with simplified geometry",
-      "colors": {
-        "primary_palette": ["Soft beige", "light gray", "warm orange"],
-        "accent_colors": ["Warm orange for focal elements"],
-        "shading": "Soft gradients with smooth transitions, avoiding harsh shadows or highlights"
+    "style2": {
+      "name": "Minimalist 3D Illustration",
+      "description": "To create clean, aesthetically pleasing visuals that emphasize simplicity, approachability, and modernity.",
+      "visual_elements": {
+        "shape_language": "Rounded edges, smooth and soft forms with simplified geometry",
+        "colors": {
+          "primary_palette": ["Soft beige", "light gray", "warm orange"],
+          "accent_colors": ["Warm orange for focal elements"],
+          "shading": "Soft gradients with smooth transitions, avoiding harsh shadows or highlights"
+        },
+        "lighting": {
+          "type": "Soft, diffused lighting",
+          "source_direction": "Above and slightly to the right",
+          "shadow_style": "Subtle and diffused, no sharp or high-contrast shadows"
+        },
+        "materials": {
+          "surface_texture": "Matte, smooth surfaces with subtle shading",
+          "reflectivity": "Low to none, avoiding glossiness"
+        },
+        "composition": {
+          "object_presentation": "Single, central object displayed in isolation with ample negative space",
+          "perspective": "Slightly angled, giving a three-dimensional feel without extreme depth",
+          "background": "Solid, muted color that complements the object without distraction"
+        },
+        "typography": {
+          "font_style": "Minimalistic, sans-serif",
+          "text_placement": "Bottom-left corner with small, subtle text",
+          "color": "Gray, low-contrast against the background"
+        },
+        "rendering_style": {
+          "technique": "3D render with simplified, low-poly aesthetics",
+          "detail_level": "Medium detail, focusing on form and color over texture or intricacy"
+        }
       },
-      "lighting": {
-        "type": "Soft, diffused lighting",
-        "source_direction": "Above and slightly to the right",
-        "shadow_style": "Subtle and diffused, no sharp or high-contrast shadows"
-      },
-      "materials": {
-        "surface_texture": "Matte, smooth surfaces with subtle shading",
-        "reflectivity": "Low to none, avoiding glossiness"
-      },
-      "composition": {
-        "object_presentation": "Single, central object displayed in isolation with ample negative space",
-        "perspective": "Slightly angled, giving a three-dimensional feel without extreme depth",
-        "background": "Solid, muted color that complements the object without distraction"
-      },
-      "typography": {
-        "font_style": "Minimalistic, sans-serif",
-        "text_placement": "Bottom-left corner with small, subtle text",
-        "color": "Gray, low-contrast against the background"
-      },
-      "rendering_style": {
-        "technique": "3D render with simplified, low-poly aesthetics",
-        "detail_level": "Medium detail, focusing on form and color over texture or intricacy"
+      "styles": {
+        "theme": "light",
+        "cssRules": "body { background-color: #F4F1EE; font-family: 'Helvetica Neue', sans-serif; color: #444; } .title { font-size: 2em; font-weight: 300; }",
+        "layout": "Centered object with generous negative space; full responsiveness for all screen sizes"
       }
-    },
-    "styles": {
-      "theme": "light",
-      "cssRules": "body { background-color: #F4F1EE; font-family: 'Helvetica Neue', sans-serif; color: #444; } .title { font-size: 2em; font-weight: 300; }",
-      "layout": "Centered object with generous negative space; full responsiveness for all screen sizes"
     }
   },
+  "style3": [
+    {
+      "title": "Geometric High-Contrast Logo - Dog",
+      "style": "Geometric High-Contrast",
+      "description": "System tożsamości wizualnej oparty na geometrycznych, kanciastych formach o wysokim kontraście, przedstawiający zwierzęta, stworzenia lub symbole w białym kolorze na czarnym tle, z czystymi wektorami, logicznymi przejściami między punktami kotwiczenia i ekspresyjnymi detalami.",
+      "subject": "Logo psa",
+      "design_elements": [
+        "Geometryczne kształty",
+        "Wysoki kontrast (biały na czarnym tle)",
+        "Czyste wektory",
+        "Logiczne przejścia między punktami kotwiczenia",
+        "Ekspresyjne detale"
+      ],
+      "output": "Logo psa w stylu geometrycznym, gotowe do użycia w systemie identyfikacji wizualnej"
+    }
+  ]
 }

@@ -95,6 +95,26 @@
     }
   },
   "style3": {
-    "prompt": "Hey, pls generate an image of a blueprint schematic of a plane, drawn in the style of early 20th-century industrial patents. Rendered in crisp blue ink with white technical lines featuring exploded views, angular labels, and stamped diagram codes"
+    "name": "Minimalistic Industrial Patent Blueprint",
+    "description": "An early 20th‑century industrial patent blueprint of an airplane, minimalistic design with consistent crisp blue ink and white linework.",
+    "prompt": "An early 20th‑century industrial patent blueprint of an airplane, minimalistic design with a consistent crisp blue and white color scheme. Rendered in crisp blue ink on a faint grid background, featuring precise white technical linework in top‑down and exploded views. Angular alphanumeric labels (A, B, C…) and stamped diagram codes are included. The layout is clean, uncluttered, and emphasizes clarity and uniform color usage.",
+    "visual_elements": {
+      "ink": "Crisp blue",
+      "lines": "White technical linework",
+      "composition": [
+        "Top-down and exploded views",
+        "Angular alphanumeric labels (A, B, C…)",
+        "Stamped diagram codes"
+      ]
+    },
+    "fileGuidelines": {
+      "background": "Faint grid-ruled blueprint paper",
+      "resolution": "Minimum 1024x768px"
+    },
+    "designDirectives": {
+      "minimalism": "Emphasize clarity with no extraneous detail; uniform line weights",
+      "colorConsistency": "Use only cyan-blue ink and white lines throughout"
+    },
+    "output": "A minimalistic, color-consistent blueprint schematic graphic of an airplane, ready for presentations or digital use."
   }
 }

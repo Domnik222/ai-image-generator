@@ -5,7 +5,7 @@
       "refinements": "Anchor-to-anchor lines must maintain logical angle progression and avoid abrupt or jagged joins.",
       "styleContinuity": "Maintain geometric precision while allowing for slight expressive exaggeration (horns, eyes, claws, etc.)"
     },
-    "description": "A bold, stylized identity system based on angular geometric forms with clean vector edges and high visual contrast. Logos depict animals, creatures, or symbolic figures in white on a black background using refined anchor transitions for smoother lines.",
+    "description": "A bold, stylized identity system based on angular geometric forms with clean vector edges and high visual contrast. Logos depict animals, creatures, or symbolic figures in white on a black background using refined anchor transitions for smoother lines, always create only one subject.",
     "subjectMatter": {
       "type": "Animal, Creature, Symbolic Mask",
       "poseVariety": [

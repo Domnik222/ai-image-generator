@@ -97,6 +97,7 @@
   "style3": {
     "name": "Early 20th-Century Industrial Patent Blueprint",
     "description": "An early 20th‑century industrial patent blueprint of an airplane, traced in crisp cobalt‑blue ink on a faint grid‑ruled background. It features precise white technical linework of top‑down, side and exploded‑component views, each annotated with angular alphanumeric labels (A, B, C…), classic ‘Fig.’ numbers, and stamped diagram codes in vintage drafting typography. Subtle paper texture, slight fold marks and pinholes add authentic period character.",
+    "prompt": "Hey, pls generate an image of a blueprint schematic of a plane, drawn in the style of early 20th-century industrial patents. Rendered in crisp blue ink with white technical lines featuring exploded views, angular labels, and stamped diagram codes",
     "visual_elements": {
       "ink": "Crisp cobalt‑blue",
       "lines": "White technical linework",

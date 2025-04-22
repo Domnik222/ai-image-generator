@@ -5,7 +5,7 @@
       "refinements": "Anchor-to-anchor lines must maintain logical angle progression and avoid abrupt or jagged joins.",
       "styleContinuity": "Maintain geometric precision while allowing for slight expressive exaggeration (horns, eyes, claws, etc.)"
     },
-    "description": "A bold, stylized identity system based on angular geometric forms with clean vector edges and high visual contrast. Logos depict animals, creatures, or symbolic figures in white on a black background using refined anchor transitions for smoother lines, always create only one subject.",
+    "description": "A bold, stylized identity system based on angular geometric forms with clean vector edges and high visual contrast. Logos depict animals, creatures, or symbolic figures in white on a black background using refined anchor transitions for smoother lines.",
     "subjectMatter": {
       "type": "Animal, Creature, Symbolic Mask",
       "poseVariety": [
@@ -95,17 +95,20 @@
     }
   },
   "style3": {
-    "title": "Geometric High-Contrast Logo - Dog",
-    "style": "style1",
-    "description": "System tożsamości wizualnej oparty na geometrycznych, kanciastych formach o wysokim kontraście, przedstawiający zwierzęta, stworzenia lub symbole w białym kolorze na czarnym tle, z czystymi wektorami, logicznymi przejściami między punktami kotwiczenia i ekspresyjnymi detalami.",
-    "subject": "Logo psa",
-    "design_elements": [
-      "Geometryczne kształty",
-      "Wysoki kontrast (biały na czarnym tle)",
-      "Czyste wektory",
-      "Logiczne przejścia między punktami kotwiczenia",
-      "Ekspresyjne detale"
-    ],
-    "output": "Logo psa w stylu geometrycznym, gotowe do użycia w systemie identyfikacji wizualnej"
+    "name": "Early 20th-Century Industrial Patent Blueprint",
+    "description": "A blueprint schematic of a plane, drawn in the style of early 20th-century industrial patents. Rendered in crisp blue ink with white technical lines featuring exploded views, angular labels, and stamped diagram codes.",
+    "visual_elements": {
+      "ink": "Crisp blue",
+      "lines": "White technical lines",
+      "composition": [
+        "Top-down and exploded views",
+        "Orthographic projections",
+        "Angular labels (e.g., A, B, C)",
+        "Figure numbers (e.g., Fig.1)"
+      ],
+      "style": "Vintage patent blueprint aesthetic with gridlines and labeled components",
+      "notation": "Stamped diagram codes and old-school drafting typography"
+    },
+    "output": "A blueprint-style plane schematic suitable for industrial concept illustration, mechanical presentation, or thematic web design"
   }
 }

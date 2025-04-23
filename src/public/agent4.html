@@ -1,27 +1,71 @@
-<!-- agent4.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>Agent 4: Blueprint Generator</title>
-  <style>/* …your existing styles… */</style>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    form {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input[type="color"], textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #357ab8;
+    }
+    #preview4 {
+      display: block;
+      margin-top: 20px;
+      max-width: 100%;
+    }
+    .loading {
+      filter: blur(5px);
+    }
+  </style>
 </head>
 <body>
   <h1>Agent 4: Blueprint Generator</h1>
 
-  <form id="imageForm4" enctype="multipart/form-data">
+  <form id="imageForm4">
+    <label for="prompt4">Prompt</label>
     <textarea
       id="prompt4"
       placeholder="Describe the blueprint you want to generate..."
       rows="4"
-      style="width: 100%"
     ></textarea>
-    <br />
 
-    <!-- NEW: reference image upload -->
-    <label for="reference4">Upload reference image (optional):</label>
-    <input type="file" id="reference4" name="referenceImage" accept="image/*" />
-    <br />
+    <label for="color1">Primary Color 1</label>
+    <input type="color" id="color1" name="color1" value="#0000ff" />
+
+    <label for="color2">Primary Color 2</label>
+    <input type="color" id="color2" name="color2" value="#00ff00" />
+
+    <label for="color3">Primary Color 3</label>
+    <input type="color" id="color3" name="color3" value="#ff0000" />
 
     <button type="submit">Generate Blueprint</button>
   </form>
@@ -41,18 +85,19 @@
       preview4.classList.add('loading');
       status4.textContent = 'Generating...';
 
-      // Build a FormData payload instead of JSON
-      const fd = new FormData();
-      fd.append('prompt', document.getElementById('prompt4').value);
-      const fileInput = document.getElementById('reference4');
-      if (fileInput.files[0]) {
-        fd.append('referenceImage', fileInput.files[0]);
-      }
+      // Build a payload with text and colors
+      const payload = {
+        prompt: document.getElementById('prompt4').value,
+        color1: document.getElementById('color1').value,
+        color2: document.getElementById('color2').value,
+        color3: document.getElementById('color3').value
+      };
 
       try {
         const response = await fetch('/generate-image4', {
           method: 'POST',
-          body: fd
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
         });
         const data = await response.json();
         if (response.ok) {

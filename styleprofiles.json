@@ -116,5 +116,24 @@
       "colorConsistency": "Use only cyan-blue ink and white lines throughout"
     },
     "output": "A minimalistic, color-consistent blueprint schematic graphic of an airplane, ready for presentations or digital use."
+  },
+  "style4": {
+    "name": "Minimalist Bauhaus Sheet",
+    "description": "A minimalist Bauhaus design sheet of a [subject], constructed from primary shapes and modular forms in bold [color1], [color2], and black. Text is sparse, arranged with precision and strong grid alignment, and also references an optional image.",
+    "prompt": "A minimalist Bauhaus design sheet of a [subject], constructed from primary shapes and modular forms in bold [color1], [color2], and black. Text is sparse, arranged with precision and strong grid alignment. Use the uploaded reference image for style guidance.",
+    "visual_elements": {
+      "shapes": "Primary circles, squares, triangles",
+      "layout": "Modular grid, precise alignment",
+      "typography": "Sparse, sans-serif labels"
+    },
+    "fileGuidelines": {
+      "background": "White with subtle grid lines",
+      "resolution": "Minimum 1024x1024px"
+    },
+    "designDirectives": {
+      "colorUsage": "Only use [color1], [color2], and black",
+      "minimalism": "No extra embellishments; focus on form and alignment"
+    },
+    "output": "A clean, minimalist Bauhaus-style design sheet, incorporating an optional reference image to guide form and composition."
   }
 }

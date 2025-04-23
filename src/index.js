@@ -55,6 +55,10 @@ app.post('/generate-image3', limiter, async (req, res) => {
   await generateImageWithStyle(req, res, 'style3');
 });
 
+app.post('/generate-image4', limiter, async (req, res) => {
+  await generateImageWithStyle(req, res, 'style4');
+});
+
 // Image generation logic with conditional style guide formatting
 async function generateImageWithStyle(req, res, styleKey) {
   try {
@@ -91,9 +95,9 @@ async function generateImageWithStyle(req, res, styleKey) {
           }
         })
         .join(', ')}`;
-    } else if (styleKey === 'style3') {
-      // Build style guide for style3 using alternative keys (e.g., "aesthetic" and "colorScheme")
-      styleGuide = `Style Profile: ${style.name}. ${style.description}. Aesthetic: ${style.aesthetic ? style.aesthetic : 'Not specified'}. Color Scheme: ${style.colorScheme ? (Array.isArray(style.colorScheme) ? style.colorScheme.join(', ') : style.colorScheme) : 'Standard'}.`;
+    } else if (styleKey === 'style3' || styleKey === 'style4') {
+      // Build guide for minimal prompt-based styles
+      styleGuide = `Style Profile: ${style.name}. ${style.description}`;
     } else {
       // Default style guide (for style1)
       styleGuide = `Style Profile: ${style.name}. Description: ${style.description}. Design Directives: ${Object.entries(style.designDirectives)
@@ -154,4 +158,5 @@ app.listen(PORT, () => {
   console.log(`• POST /generate-image`);
   console.log(`• POST /generate-image2`);
   console.log(`• POST /generate-image3`);
+  console.log(`• POST /generate-image4`);
 });

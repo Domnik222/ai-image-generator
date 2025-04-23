@@ -1,7 +1,6 @@
 import express from 'express';
 import OpenAI from 'openai';
 import rateLimit from 'express-rate-limit';
-import multer from 'multer';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
@@ -10,7 +9,7 @@ import { fileURLToPath } from 'url';
 dotenv.config();
 
 const app = express();
-app.set('trust proxy', 1); // For Render or proxies
+app.set('trust proxy', 1); // For proxies
 
 // Fix __dirname in ES module scope
 const __filename = fileURLToPath(import.meta.url);
@@ -30,18 +29,6 @@ app.use(express.json({ limit: '5mb' }));
 const staticPath = path.join(__dirname, 'public');
 console.log('✅ Serving static files from:', staticPath);
 app.use(express.static(staticPath));
-
-// Ensure uploads directory exists
-const uploadsDir = path.join(staticPath, 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
-
-// Multer setup for Agent 4 reference image uploads (max 5MB)
-const upload = multer({
-  dest: uploadsDir,
-  limits: { fileSize: 5 * 1024 * 1024 }
-});
 
 // Rate limiter (20 requests/hour)
 const limiter = rateLimit({
@@ -68,20 +55,21 @@ app.post('/generate-image3', limiter, async (req, res) => {
   await generateImageWithStyle(req, res, 'style3');
 });
 
-// Agent 4: supports optional reference image upload
-app.post(
-  '/generate-image4',
-  limiter,
-  upload.single('referenceImage'),
-  async (req, res) => {
-    await generateImageWithStyle(req, res, 'style4', req.file);
-  }
-);
+app.post('/generate-image4', limiter, async (req, res) => {
+  await generateImageWithStyle(req, res, 'style4');
+});
 
 // Core image generation logic
-async function generateImageWithStyle(req, res, styleKey, uploadedFile) {
+async function generateImageWithStyle(req, res, styleKey) {
   try {
-    const { prompt, size = '1024x1024', quality = 'standard' } = req.body;
+    const {
+      prompt,
+      size = '1024x1024',
+      quality = 'standard',
+      color1,
+      color2,
+      color3
+    } = req.body;
 
     if (!prompt) {
       return res.status(400).json({ error: 'Image description required' });
@@ -99,41 +87,23 @@ async function generateImageWithStyle(req, res, styleKey, uploadedFile) {
     console.log('User prompt:', prompt);
 
     // Build styleGuide string
-    let styleGuide = '';
-    if (styleKey === 'style2') {
-      styleGuide = `Style Profile: ${style.name}. ${style.description}. Visual Elements: ${Object.entries(style.visual_elements)
-        .map(([k, v]) =>
-          Array.isArray(v)
-            ? `${k}: ${v.join(', ')}`
-            : typeof v === 'object'
-            ? `${k}: ${Object.entries(v).map(([a, b]) => `${a}: ${b}`).join(', ')}`
-            : `${k}: ${v}`
-        )
-        .join(', ')}`;
-    } else if (styleKey === 'style3' || styleKey === 'style4') {
-      styleGuide = `Style Profile: ${style.name}. ${style.description}.`;
-    } else {
-      styleGuide = `Style Profile: ${style.name}. Description: ${style.description}. Design Directives: ${Object.entries(style.designDirectives)
-        .map(([k, v]) => `${k}: ${v}`)
-        .join(', ')}. Visual Characteristics: ${Object.entries(style.visualCharacteristics)
-        .map(([k, v]) => `${k}: ${v}`)
-        .join(', ')}.`;
-    }
+    let styleGuide = `Style Profile: ${style.name}. ${style.description}.`;
 
-    // Handle optional reference image for style4
-    let refUrl = '';
-    if (styleKey === 'style4' && uploadedFile) {
-      refUrl = `${req.protocol}://${req.get('host')}/uploads/${path.basename(uploadedFile.path)}`;
-      console.log('Reference image URL:', refUrl);
+    // Append color info for style4
+    if (styleKey === 'style4') {
+      styleGuide += ` Primary colors: ${color1 || 'N/A'}, ${color2 || 'N/A'}, ${color3 || 'N/A'}.`;
     }
 
     // Construct final prompt
-    let finalPrompt = `Professional. ${styleGuide} Please create an image that depicts: ${prompt}`;
-    if (refUrl) {
-      finalPrompt += ` Use this reference image for guidance: ${refUrl}`;
+    let finalPrompt =
+      `Professional. ${styleGuide} Please create an image that depicts: ${prompt}`;
+
+    if (styleKey === 'style4') {
+      finalPrompt +=
+        ` Use primary shapes in these colors: ${color1 || 'N/A'}, ${color2 || 'N/A'}, ${color3 || 'N/A'}.`;
     }
 
-    console.log('Final prompt:', finalPrompt);
+    console.log('🎨 Final prompt:', finalPrompt);
 
     // Call DALL·E
     const response = await openai.images.generate({
@@ -146,21 +116,21 @@ async function generateImageWithStyle(req, res, styleKey, uploadedFile) {
       style: 'vivid'
     });
 
-    res.json({
+    return res.json({
       image_url: response.data[0].url,
       revised_prompt: response.data[0].revised_prompt,
       size,
       quality
     });
   } catch (error) {
-    console.error('DALL·E Error:', error);
+    console.error('🔥 DALL·E Error:', error);
     const errorMessage = error.message.includes('content policy')
       ? 'Prompt rejected: violates content policy'
       : error.message.includes('billing')
       ? 'API billing issue'
       : 'Image generation failed';
 
-    res.status(error.status || 500).json({
+    return res.status(error.status || 500).json({
       error: errorMessage,
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });

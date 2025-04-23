@@ -1,28 +1,15 @@
+<!-- agent4.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Agent 4 - Blueprint Generator</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-    #preview {
-      margin-top: 20px;
-      max-width: 100%;
-    }
-    .loading {
-      filter: blur(5px);
-    }
-  </style>
+  <title>Agent 4: Blueprint Generator</title>
+  <style>/* …your existing styles… */</style>
 </head>
 <body>
   <h1>Agent 4: Blueprint Generator</h1>
 
-  <form id="imageForm4">
+  <form id="imageForm4" enctype="multipart/form-data">
     <textarea
       id="prompt4"
       placeholder="Describe the blueprint you want to generate..."
@@ -30,6 +17,12 @@
       style="width: 100%"
     ></textarea>
     <br />
+
+    <!-- NEW: reference image upload -->
+    <label for="reference4">Upload reference image (optional):</label>
+    <input type="file" id="reference4" name="referenceImage" accept="image/*" />
+    <br />
+
     <button type="submit">Generate Blueprint</button>
   </form>
 
@@ -45,23 +38,23 @@
 
     form4.addEventListener('submit', async (e) => {
       e.preventDefault();
-
       preview4.classList.add('loading');
       status4.textContent = 'Generating...';
+
+      // Build a FormData payload instead of JSON
+      const fd = new FormData();
+      fd.append('prompt', document.getElementById('prompt4').value);
+      const fileInput = document.getElementById('reference4');
+      if (fileInput.files[0]) {
+        fd.append('referenceImage', fileInput.files[0]);
+      }
 
       try {
         const response = await fetch('/generate-image4', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            prompt: document.getElementById('prompt4').value,
-          }),
+          body: fd
         });
-
         const data = await response.json();
-
         if (response.ok) {
           preview4.src = data.image_url;
           status4.textContent = `Revised prompt: ${data.revised_prompt}`;
@@ -70,7 +63,7 @@
         }
       } catch (err) {
         console.error(err);
-        status4.textContent = 'Connection failed - is the server running?';
+        status4.textContent = 'Connection failed – is the server running?';
       } finally {
         preview4.classList.remove('loading');
       }
@@ -78,6 +71,3 @@
   </script>
 </body>
 </html>
-
-<!-- Duplicate below structure for Agents 5, 6, and 7 with /generate-image5, /generate-image6, /generate-image7 -->
-<!-- Change form IDs, preview image IDs, and prompt IDs accordingly -->

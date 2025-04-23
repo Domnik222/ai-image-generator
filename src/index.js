@@ -1,6 +1,7 @@
 import express from 'express';
 import OpenAI from 'openai';
 import rateLimit from 'express-rate-limit';
+import multer from 'multer';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
@@ -30,6 +31,18 @@ const staticPath = path.join(__dirname, 'public');
 console.log('✅ Serving static files from:', staticPath);
 app.use(express.static(staticPath));
 
+// Ensure uploads directory exists
+const uploadsDir = path.join(staticPath, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Multer setup for Agent 4 reference image uploads (max 5MB)
+const upload = multer({
+  dest: uploadsDir,
+  limits: { fileSize: 5 * 1024 * 1024 }
+});
+
 // Rate limiter (20 requests/hour)
 const limiter = rateLimit({
   windowMs: 60 * 60 * 1000,
@@ -55,51 +68,51 @@ app.post('/generate-image3', limiter, async (req, res) => {
   await generateImageWithStyle(req, res, 'style3');
 });
 
-app.post('/generate-image4', limiter, async (req, res) => {
-  await generateImageWithStyle(req, res, 'style4');
-});
+// Agent 4: supports optional reference image upload
+app.post(
+  '/generate-image4',
+  limiter,
+  upload.single('referenceImage'),
+  async (req, res) => {
+    await generateImageWithStyle(req, res, 'style4', req.file);
+  }
+);
 
-// Image generation logic with conditional style guide formatting
-async function generateImageWithStyle(req, res, styleKey) {
+// Core image generation logic
+async function generateImageWithStyle(req, res, styleKey, uploadedFile) {
   try {
     const { prompt, size = '1024x1024', quality = 'standard' } = req.body;
 
-    if (!prompt)
+    if (!prompt) {
       return res.status(400).json({ error: 'Image description required' });
-    if (prompt.length > 1000)
+    }
+    if (prompt.length > 1000) {
       return res.status(400).json({ error: 'Prompt too long (max 1000 chars)' });
+    }
 
-    console.log("🧠 styleProfiles:", styleProfiles);
     const style = styleProfiles[styleKey];
     if (!style) {
-      console.error(`Style '${styleKey}' not found in JSON.`);
       return res.status(400).json({ error: `Style '${styleKey}' not found.` });
     }
 
     console.log(`Using style: ${style.name}`);
-    console.log("User prompt:", prompt);
+    console.log('User prompt:', prompt);
 
+    // Build styleGuide string
     let styleGuide = '';
     if (styleKey === 'style2') {
-      // Build style guide for style2 using "visual_elements"
       styleGuide = `Style Profile: ${style.name}. ${style.description}. Visual Elements: ${Object.entries(style.visual_elements)
-        .map(([key, value]) => {
-          if (Array.isArray(value)) {
-            return `${key}: ${value.join(', ')}`;
-          } else if (typeof value === 'object') {
-            return `${key}: ${Object.entries(value)
-              .map(([k, v]) => `${k}: ${v}`)
-              .join(', ')}`;
-          } else {
-            return `${key}: ${value}`;
-          }
-        })
+        .map(([k, v]) =>
+          Array.isArray(v)
+            ? `${k}: ${v.join(', ')}`
+            : typeof v === 'object'
+            ? `${k}: ${Object.entries(v).map(([a, b]) => `${a}: ${b}`).join(', ')}`
+            : `${k}: ${v}`
+        )
         .join(', ')}`;
     } else if (styleKey === 'style3' || styleKey === 'style4') {
-      // Build guide for minimal prompt-based styles
-      styleGuide = `Style Profile: ${style.name}. ${style.description}`;
+      styleGuide = `Style Profile: ${style.name}. ${style.description}.`;
     } else {
-      // Default style guide (for style1)
       styleGuide = `Style Profile: ${style.name}. Description: ${style.description}. Design Directives: ${Object.entries(style.designDirectives)
         .map(([k, v]) => `${k}: ${v}`)
         .join(', ')}. Visual Characteristics: ${Object.entries(style.visualCharacteristics)
@@ -107,9 +120,22 @@ async function generateImageWithStyle(req, res, styleKey) {
         .join(', ')}.`;
     }
 
-    const finalPrompt = `Professional. ${styleGuide} Please create an image that depicts: ${prompt}`;
-    console.log("🎨 Final prompt:", finalPrompt);
+    // Handle optional reference image for style4
+    let refUrl = '';
+    if (styleKey === 'style4' && uploadedFile) {
+      refUrl = `${req.protocol}://${req.get('host')}/uploads/${path.basename(uploadedFile.path)}`;
+      console.log('Reference image URL:', refUrl);
+    }
 
+    // Construct final prompt
+    let finalPrompt = `Professional. ${styleGuide} Please create an image that depicts: ${prompt}`;
+    if (refUrl) {
+      finalPrompt += ` Use this reference image for guidance: ${refUrl}`;
+    }
+
+    console.log('Final prompt:', finalPrompt);
+
+    // Call DALL·E
     const response = await openai.images.generate({
       model: 'dall-e-3',
       prompt: finalPrompt,
@@ -126,14 +152,13 @@ async function generateImageWithStyle(req, res, styleKey) {
       size,
       quality
     });
-
   } catch (error) {
-    console.error('🔥 DALL·E Error:', error);
+    console.error('DALL·E Error:', error);
     const errorMessage = error.message.includes('content policy')
       ? 'Prompt rejected: violates content policy'
       : error.message.includes('billing')
-        ? 'API billing issue'
-        : 'Image generation failed';
+      ? 'API billing issue'
+      : 'Image generation failed';
 
     res.status(error.status || 500).json({
       error: errorMessage,
@@ -151,12 +176,12 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Dynamic port
+// Start server
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`✅ Server running on http://localhost:${PORT}`);
-  console.log(`• POST /generate-image`);
-  console.log(`• POST /generate-image2`);
-  console.log(`• POST /generate-image3`);
-  console.log(`• POST /generate-image4`);
+  console.log('• POST /generate-image');
+  console.log('• POST /generate-image2');
+  console.log('• POST /generate-image3');
+  console.log('• POST /generate-image4');
 });

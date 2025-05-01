@@ -5,7 +5,6 @@ import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
 import multer from 'multer';
-import { PNG } from 'pngjs'; // 🆕 make sure to install: npm install pngjs
 import { fileURLToPath } from 'url';
 
 dotenv.config();
@@ -17,7 +16,7 @@ app.set('trust proxy', 1);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// OpenAI init
+// OpenAI client
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
   maxRetries: 2,
@@ -32,7 +31,7 @@ const staticPath = path.join(__dirname, 'public');
 console.log('✅ Serving static files from:', staticPath);
 app.use(express.static(staticPath));
 
-// Rate limiter
+// Rate limiter (20 requests/hour)
 const limiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 20,
@@ -44,10 +43,10 @@ const limiter = rateLimit({
 const profilesPath = path.join(process.cwd(), 'styleprofiles.json');
 const styleProfiles = JSON.parse(fs.readFileSync(profilesPath, 'utf-8'));
 
-// File upload middleware for agent5
-const upload = multer();
+// Multer config for uploads
+const upload = multer({ storage: multer.memoryStorage() });
 
-// 🟢 Endpoints for existing agents
+// Existing style endpoints
 app.post('/generate-image', limiter, async (req, res) => {
   await generateImageWithStyle(req, res, 'style1');
 });
@@ -64,28 +63,38 @@ app.post('/generate-image4', limiter, async (req, res) => {
   await generateImageWithStyle(req, res, 'style4');
 });
 
-// 🆕 NEW endpoint for Agent5 (glassy objects, with uploaded reference image)
+// NEW: Agent5 - single upload + auto white mask
 app.post('/generate-image5', limiter, upload.single('referenceImage'), async (req, res) => {
   try {
-    const styleKey = 'style5';
-    const style = styleProfiles[styleKey];
-    if (!style) {
-      return res.status(400).json({ error: `Style '${styleKey}' not found.` });
-    }
+    console.log('🧪 Upload received:', {
+      name: req.file?.originalname,
+      type: req.file?.mimetype,
+      size: req.file?.size
+    });
 
     if (!req.file) {
       return res.status(400).json({ error: 'Reference image is required.' });
     }
 
-    // ✅ Generate 1x1 white PNG mask (DALL-E will upscale it automatically)
-    const mask = new PNG({ width: 1, height: 1 });
-    mask.data[0] = 255; // R
-    mask.data[1] = 255; // G
-    mask.data[2] = 255; // B
-    mask.data[3] = 255; // A
-    const maskBuffer = PNG.sync.write(mask);
+    const { prompt, size = '1024x1024', quality = 'standard' } = req.body;
+    if (!prompt) {
+      return res.status(400).json({ error: 'Image description required' });
+    }
+    if (prompt.length > 1000) {
+      return res.status(400).json({ error: 'Prompt too long (max 1000 chars)' });
+    }
 
-    // Build prompt
+    const style = styleProfiles['style5'];
+    if (!style) {
+      return res.status(400).json({ error: "Style 'style5' not found." });
+    }
+
+    // 1x1 white PNG mask in Base64
+    const maskBase64 =
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8Xw8AAoMBgQHtC/YAAAAASUVORK5CYII=';
+    const maskBuffer = Buffer.from(maskBase64, 'base64');
+
+    // Final prompt
     const finalPrompt =
       "3D render of a translucent glass object with a frosty matte finish, " +
       "detailed texture, in its original colors, poised gently in mid-air. " +
@@ -95,31 +104,38 @@ app.post('/generate-image5', limiter, upload.single('referenceImage'), async (re
 
     console.log('✨ Generating image5 edit with prompt:', finalPrompt);
 
-    // ✅ Call OpenAI image.edit
     const response = await openai.images.edit({
       model: 'dall-e-3',
       image: req.file.buffer,
       mask: maskBuffer,
       prompt: finalPrompt,
       n: 1,
-      size: '1024x1024',
+      size,
+      quality,
       response_format: 'url'
     });
 
     return res.json({
       image_url: response.data[0].url,
-      revised_prompt: response.data[0].revised_prompt
+      revised_prompt: response.data[0].revised_prompt,
+      upload: {
+        name: req.file.originalname,
+        size: req.file.size,
+        type: req.file.mimetype
+      },
+      size,
+      quality
     });
-  } catch (err) {
-    console.error('🔥 Error in /generate-image5:', err);
-    const msg = err.message.includes('content policy')
+  } catch (error) {
+    console.error('🔥 Error in /generate-image5:', error);
+    const msg = error.message.includes('content policy')
       ? 'Prompt rejected: violates content policy'
-      : 'Image edit failed';
-    return res.status(err.status || 500).json({ error: msg });
+      : 'Image generation failed';
+    return res.status(error.status || 500).json({ error: msg });
   }
 });
 
-// Core image generation logic for agents 1-4
+// Shared handler for agents 1-4
 async function generateImageWithStyle(req, res, styleKey) {
   try {
     const {
@@ -147,22 +163,19 @@ async function generateImageWithStyle(req, res, styleKey) {
     console.log('User prompt:', prompt);
 
     let styleGuide = `Style Profile: ${style.name}. ${style.description}.`;
-
     if (styleKey === 'style4') {
       styleGuide += ` Primary colors: ${color1 || 'N/A'}, ${color2 || 'N/A'}, ${color3 || 'N/A'}.`;
     }
 
     let finalPrompt =
       `Professional. ${styleGuide} Please create an image that depicts: ${prompt}`;
-
     if (styleKey === 'style4') {
-      finalPrompt +=
-        ` Use primary shapes in these colors: ${color1 || 'N/A'}, ${color2 || 'N/A'}, ${color3 || 'N/A'}.`;
+      finalPrompt += ` Use primary shapes in these colors: ${color1}, ${color2}, ${color3}.`;
     }
 
     console.log('🎨 Final prompt:', finalPrompt);
 
-    const response = await openai.images.generate({
+    const imgRes = await openai.images.generate({
       model: 'dall-e-3',
       prompt: finalPrompt,
       n: 1,
@@ -173,22 +186,22 @@ async function generateImageWithStyle(req, res, styleKey) {
     });
 
     return res.json({
-      image_url: response.data[0].url,
-      revised_prompt: response.data[0].revised_prompt,
+      image_url: imgRes.data[0].url,
+      revised_prompt: imgRes.data[0].revised_prompt,
       size,
       quality
     });
-  } catch (error) {
-    console.error('🔥 DALL·E Error:', error);
-    const errorMessage = error.message.includes('content policy')
+  } catch (err) {
+    console.error('🔥 DALL·E Error:', err);
+    const errorMessage = err.message.includes('content policy')
       ? 'Prompt rejected: violates content policy'
-      : error.message.includes('billing')
+      : err.message.includes('billing')
       ? 'API billing issue'
       : 'Image generation failed';
 
-    return res.status(error.status || 500).json({
+    return res.status(err.status || 500).json({
       error: errorMessage,
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: process.env.NODE_ENV === 'development' ? err.message : undefined
     });
   }
 }

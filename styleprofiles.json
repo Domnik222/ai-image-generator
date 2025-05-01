@@ -52,6 +52,10 @@
         "foreground": "#FFFFFF"
       },
       "lineQuality": "Smooth vector transitions between anchor points, no jagged or pixelated edges"
+    },
+    "referenceImage": {
+      "enabled": true,
+      "description": "Optional: upload an image to guide the geometric form or subject details."
     }
   },
   "style2": {
@@ -92,12 +96,16 @@
       "theme": "light",
       "cssRules": "body { background-color: #F4F1EE; font-family: 'Helvetica Neue', sans-serif; color: #444; } .title { font-size: 2em; font-weight: 300; }",
       "layout": "Centered object with generous negative space; full responsiveness for all screen sizes"
+    },
+    "referenceImage": {
+      "enabled": true,
+      "description": "Optional: upload a 3D model snapshot or sketch to influence material and shape."
     }
   },
   "style3": {
     "name": "Minimalistic Industrial Patent Blueprint",
-    "description": "An early 20th‑century industrial patent blueprint of an airplane, minimalistic design with consistent crisp blue ink and white linework.",
-    "prompt": "An early 20th‑century industrial patent blueprint of an airplane, minimalistic design with a consistent crisp blue and white color scheme. Rendered in crisp blue ink on a faint grid background, featuring precise white technical linework in top‑down and exploded views. Angular alphanumeric labels (A, B, C…) and stamped diagram codes are included. The layout is clean, uncluttered, and emphasizes clarity and uniform color usage.",
+    "description": "An early 20th-century industrial patent blueprint of an airplane, minimalistic design with consistent crisp blue ink and white linework.",
+    "prompt": "An early 20th-century industrial patent blueprint of an airplane, minimalistic design with a consistent crisp blue and white color scheme. Rendered in crisp blue ink on a faint grid background, featuring precise white technical linework in top-down and exploded views. Angular alphanumeric labels (A, B, C…) and stamped diagram codes are included. The layout is clean, uncluttered, and emphasizes clarity and uniform color usage.",
     "visual_elements": {
       "ink": "Crisp blue",
       "lines": "White technical linework",
@@ -115,7 +123,11 @@
       "minimalism": "Emphasize clarity with no extraneous detail; uniform line weights",
       "colorConsistency": "Use only cyan-blue ink and white lines throughout"
     },
-    "output": "A minimalistic, color-consistent blueprint schematic graphic of an airplane, ready for presentations or digital use."
+    "output": "A minimalistic, color-consistent blueprint schematic graphic of an airplane, ready for presentations or digital use.",
+    "referenceImage": {
+      "enabled": true,
+      "description": "Optional: upload a hand-sketch or blueprint scan to guide linework precision."
+    }
   },
   "style4": {
     "name": "Minimalist Bauhaus Sheet",
@@ -134,6 +146,29 @@
       "colorUsage": "Only use [color1], [color2], and black",
       "minimalism": "No extra embellishments; focus on form and alignment"
     },
-    "output": "A clean, minimalist Bauhaus-style design sheet, incorporating an optional reference image to guide form and composition."
+    "output": "A clean, minimalist Bauhaus-style design sheet, incorporating an optional reference image to guide form and composition.",
+    "referenceImage": {
+      "enabled": true,
+      "description": "Optional: upload a photo or sketch to inform shape proportions."
+    }
+  },
+  "style5": {
+    "name": "Soft Translucent Glass Render",
+    "prompt": "A soft, 3D translucent glass of the attached image with a frosty matte finish and detailed texture, original colors, centered on a light gray background, floats gently in space, soft shadows, natural lighting",
+    "fileGuidelines": {
+      "background": "Light gray (#EEEEEE)",
+      "resolution": "Minimum 1024×1024px",
+      "exportFormats": ["PNG", "JPEG"]
+    },
+    "designDirectives": {
+      "material": "Translucent glass with frosty matte finish",
+      "lighting": "Natural, soft and diffuse",
+      "composition": "Centered floating object with gentle shadow",
+      "texture": "Detailed surface frosted effect"
+    },
+    "referenceImage": {
+      "enabled": true,
+      "description": "Upload the base image here; the glass render will be applied directly to it."
+    }
   }
 }

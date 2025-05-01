@@ -11,9 +11,11 @@ dotenv.config();
 const app = express();
 app.set('trust proxy', 1);
 
+// Fix __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// OpenAI client
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
   maxRetries: 2,
@@ -23,12 +25,12 @@ const openai = new OpenAI({
 // JSON body parser
 app.use(express.json({ limit: '5mb' }));
 
-// Static files
+// Serve static files
 const staticPath = path.join(__dirname, 'public');
 console.log('✅ Serving static files from:', staticPath);
 app.use(express.static(staticPath));
 
-// Rate limiter
+// Rate limiter (20 requests/hour)
 const limiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 20,
@@ -36,20 +38,20 @@ const limiter = rateLimit({
   headers: true
 });
 
-// Load styles
+// Load style profiles
 const profilesPath = path.join(process.cwd(), 'styleprofiles.json');
 const styleProfiles = JSON.parse(fs.readFileSync(profilesPath, 'utf-8'));
 
-// Multer for uploads (memory)
-const upload = multer({ storage: multer.memoryStorage() });
+// Multer disk storage for uploads
+const upload = multer({ dest: path.join(__dirname, 'uploads/') });
 
-// Agents 1–4 (text → generate)
+// Endpoints for styles 1-4
 app.post('/generate-image', limiter, (req, res) => generateWithStyle(req, res, 'style1'));
 app.post('/generate-image2', limiter, (req, res) => generateWithStyle(req, res, 'style2'));
 app.post('/generate-image3', limiter, (req, res) => generateWithStyle(req, res, 'style3'));
 app.post('/generate-image4', limiter, (req, res) => generateWithStyle(req, res, 'style4'));
 
-// Agent 5 (image edit with single upload + auto white mask)
+// Endpoint for style5: single upload + auto white mask
 app.post(
   '/generate-image5',
   limiter,
@@ -57,7 +59,7 @@ app.post(
   async (req, res) => {
     try {
       if (!req.file) {
-        return res.status(400).json({ error: 'Reference image is required.' });
+        return res.status(400).json({ error: 'Reference image required.' });
       }
 
       const style = styleProfiles['style5'];
@@ -65,31 +67,35 @@ app.post(
         return res.status(400).json({ error: `Style 'style5' not found.` });
       }
 
-      // Log upload metadata
       console.log('🧪 Upload received:', {
         name: req.file.originalname,
-        type: req.file.mimetype,
+        path: req.file.path,
         size: req.file.size
       });
+      console.log('✨ Prompt:', style.prompt);
 
-      // Build the final prompt exactly as defined in style5
-      const finalPrompt = style.prompt;
-
-      // Create a 1×1 white mask PNG (base64 → buffer)
+      // Write out white mask PNG
       const maskBase64 =
         'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8Xw8AAoMBgQHtC/YAAAAASUVORK5CYII=';
-      const maskBuffer = Buffer.from(maskBase64, 'base64');
+      const maskPath = path.join(__dirname, 'uploads', `mask-${Date.now()}.png`);
+      fs.writeFileSync(maskPath, Buffer.from(maskBase64, 'base64'));
 
-      console.log('✨ Generating image5 edit with prompt:', finalPrompt);
+      // Create streams
+      const imageStream = fs.createReadStream(req.file.path);
+      const maskStream = fs.createReadStream(maskPath);
 
       const editRes = await openai.images.edit({
-        model: 'gpt-image-1',      // DALL·E 3 alias
-        image: req.file.buffer,
-        mask: maskBuffer,
-        prompt: finalPrompt,
+        model: 'gpt-image-1',
+        image: imageStream,
+        mask: maskStream,
+        prompt: style.prompt,
         n: 1,
         size: '1024x1024'
       });
+
+      // Cleanup temp files
+      fs.unlinkSync(req.file.path);
+      fs.unlinkSync(maskPath);
 
       return res.json({
         image_url: editRes.data[0].url,
@@ -97,36 +103,20 @@ app.post(
       });
     } catch (err) {
       console.error('🔥 Error in /generate-image5:', err);
-      const msg = err.message.includes('content policy')
-        ? 'Prompt rejected: violates content policy'
-        : 'Image edit failed';
-      return res.status(err.status || 500).json({ error: msg });
+      return res.status(err.status || 500).json({ error: 'Image edit failed' });
     }
   }
 );
 
+// Shared generation handler for styles 1-4
 async function generateWithStyle(req, res, styleKey) {
   try {
-    const {
-      prompt,
-      size = '1024x1024',
-      quality = 'standard',
-      color1,
-      color2,
-      color3
-    } = req.body;
-
-    if (!prompt) {
-      return res.status(400).json({ error: 'Image description required' });
-    }
-    if (prompt.length > 1000) {
-      return res.status(400).json({ error: 'Prompt too long (max 1000 chars)' });
-    }
+    const { prompt, size = '1024x1024', quality = 'standard', color1, color2, color3 } = req.body;
+    if (!prompt) return res.status(400).json({ error: 'Image description required' });
+    if (prompt.length > 1000) return res.status(400).json({ error: 'Prompt too long (max 1000 chars)' });
 
     const style = styleProfiles[styleKey];
-    if (!style) {
-      return res.status(400).json({ error: `Style '${styleKey}' not found.` });
-    }
+    if (!style) return res.status(400).json({ error: `Style '${styleKey}' not found.` });
 
     console.log(`Using style: ${style.name}`);
     console.log('User prompt:', prompt);
@@ -137,11 +127,10 @@ async function generateWithStyle(req, res, styleKey) {
     }
 
     const finalPrompt = `Professional. ${styleGuide} Please create an image that depicts: ${prompt}`;
-
     console.log('🎨 Final prompt:', finalPrompt);
 
     const genRes = await openai.images.generate({
-      model: 'gpt-image-1',    // DALL·E 3 alias
+      model: 'gpt-image-1',
       prompt: finalPrompt,
       n: 1,
       size,
@@ -155,10 +144,7 @@ async function generateWithStyle(req, res, styleKey) {
     });
   } catch (err) {
     console.error(`🔥 Error in generateWithStyle [${styleKey}]:`, err);
-    const msg = err.message.includes('content policy')
-      ? 'Prompt rejected: violates content policy'
-      : 'Image generation failed';
-    return res.status(err.status || 500).json({ error: msg });
+    return res.status(err.status || 500).json({ error: 'Image generation failed' });
   }
 }
 

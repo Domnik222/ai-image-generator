@@ -42,8 +42,15 @@ const limiter = rateLimit({
 const profilesPath = path.join(process.cwd(), 'styleprofiles.json');
 const styleProfiles = JSON.parse(fs.readFileSync(profilesPath, 'utf-8'));
 
-// Multer disk storage for uploads
-const upload = multer({ dest: path.join(__dirname, 'uploads/') });
+// Multer disk storage for uploads, preserving extension
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, path.join(__dirname, 'uploads')),
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    cb(null, `${Date.now()}${ext}`);
+  }
+});
+const upload = multer({ storage });
 
 // Endpoints for styles 1-4
 app.post('/generate-image', limiter, (req, res) => generateWithStyle(req, res, 'style1'));
@@ -80,7 +87,7 @@ app.post(
       const maskPath = path.join(__dirname, 'uploads', `mask-${Date.now()}.png`);
       fs.writeFileSync(maskPath, Buffer.from(maskBase64, 'base64'));
 
-      // Create streams
+      // Create streams for image and mask
       const imageStream = fs.createReadStream(req.file.path);
       const maskStream = fs.createReadStream(maskPath);
 

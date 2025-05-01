@@ -1,129 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Agent 5: Soft Translucent Glass Render</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-    form {
-      margin-bottom: 20px;
-    }
-    label {
-      display: block;
-      margin-top: 10px;
-      font-weight: bold;
-    }
-    textarea, input[type="file"] {
-      width: 100%;
-      padding: 8px;
-      margin-top: 5px;
-      box-sizing: border-box;
-    }
-    textarea[readonly] {
-      background-color: #f0f0f0;
-    }
-    button {
-      margin-top: 15px;
-      padding: 10px 20px;
-      font-size: 16px;
-      background-color: #4a90e2;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #357ab8;
-    }
-    #preview5 {
-      display: block;
-      margin-top: 20px;
-      max-width: 100%;
-    }
-    .loading {
-      filter: blur(5px);
-    }
-    #status5 {
-      margin-top: 10px;
-      color: #333;
-      white-space: pre-wrap;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <title>Upload Image</title>
 </head>
 <body>
-  <h1>Agent 5: Soft Translucent Glass Render</h1>
-
-  <form id="imageForm5" enctype="multipart/form-data">
-    <label for="referenceImage5">Upload Reference Image</label>
-    <input type="file" id="referenceImage5" name="referenceImage" accept="image/*" required />
-
-    <button type="submit">Generate Glass Render</button>
+  <h1>Generate Image 5</h1>
+  <form id="imageForm" enctype="multipart/form-data" method="POST">
+    <input type="file" name="image" accept="image/png, image/jpeg, image/webp" required />
+    <button type="submit">Upload and Generate</button>
   </form>
 
-  <div id="result5">
-    <img id="preview5" src="" alt="Generated glass render" />
-    <p id="status5"></p>
-  </div>
+  <div id="result"></div>
 
   <script>
-    const form5 = document.getElementById('imageForm5');
-    const preview5 = document.getElementById('preview5');
-    const status5 = document.getElementById('status5');
-
-    form5.addEventListener('submit', async (e) => {
+    const form = document.getElementById('imageForm');
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      status5.textContent = 'Submitting...';
-      preview5.removeAttribute('src');
-      preview5.classList.add('loading');
-
-      const fileInput = document.getElementById('referenceImage5');
-      if (!fileInput.files.length) {
-        status5.textContent = 'Please select a file.';
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append('referenceImage', fileInput.files[0]);
-
+      const formData = new FormData(form);
       try {
         const response = await fetch('/generate-image5', {
           method: 'POST',
           body: formData
         });
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          status5.textContent = `Server error (${response.status}): ${errorText}`;
-          preview5.classList.remove('loading');
-          return;
-        }
-
-        let data;
-        try {
-          data = await response.json();
-        } catch (jsonErr) {
-          const text = await response.text();
-          status5.textContent = `Invalid server response: ${text}`;
-          preview5.classList.remove('loading');
-          return;
-        }
-
-        if (data.error) {
-          status5.textContent = `Error: ${data.error}`;
-        } else {
-          preview5.src = data.image_url;
-          status5.textContent = `Revised prompt: ${data.revised_prompt}`;
-        }
+        if (!response.ok) throw new Error(`Server error: ${response.status}`);
+        const data = await response.json();
+        document.getElementById('result').innerHTML = `
+          <p>Image generated!</p>
+          <img src="${data.data[0].url}" alt="Generated Image" width="512">
+        `;
       } catch (err) {
-        console.error(err);
-        status5.textContent = 'Connection failed – please try again.';
-      } finally {
-        preview5.classList.remove('loading');
+        console.error('❌ Error:', err);
+        document.getElementById('result').textContent = `Error: ${err.message}`;
       }
     });
   </script>

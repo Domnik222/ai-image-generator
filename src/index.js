@@ -24,7 +24,7 @@ app.post('/generate-image5', upload.single('image'), async (req, res) => {
     }
 
     const result = await openai.images.edit({
-      model: 'dall-e-3',
+      model: 'dall-e-2',  // ✅ FIXED model
       image: {
         data: fileBuffer,
         filename: req.file.originalname,

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Agent 5: Soft Translucent Glass Render</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    form {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    textarea, input[type="file"] {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      box-sizing: border-box;
+    }
+    textarea[readonly] {
+      background-color: #f0f0f0;
+    }
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #357ab8;
+    }
+    #preview5 {
+      display: block;
+      margin-top: 20px;
+      max-width: 100%;
+    }
+    .loading {
+      filter: blur(5px);
+    }
+  </style>
+</head>
+<body>
+  <h1>Agent 5: Soft Translucent Glass Render</h1>
+
+  <form id="imageForm5" enctype="multipart/form-data">
+    <label for="prompt5">Prompt</label>
+    <textarea id="prompt5" rows="3" readonly>
+A soft, 3D translucent glass of the attached image with a frosty matte finish and detailed texture, original colors, centered on a light gray background, floats gently in space, soft shadows, natural lighting
+    </textarea>
+
+    <label for="referenceImage5">Upload Reference Image</label>
+    <input type="file" id="referenceImage5" name="referenceImage" accept="image/*" />
+
+    <button type="submit">Generate Glass Render</button>
+  </form>
+
+  <div id="result5">
+    <img id="preview5" src="" alt="Generated glass render" />
+    <p id="status5"></p>
+  </div>
+
+  <script>
+    const form5 = document.getElementById('imageForm5');
+    const preview5 = document.getElementById('preview5');
+    const status5 = document.getElementById('status5');
+
+    form5.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      preview5.classList.add('loading');
+      status5.textContent = 'Generating...';
+
+      const formData = new FormData();
+      formData.append('prompt', document.getElementById('prompt5').value.trim());
+      const fileInput = document.getElementById('referenceImage5');
+      if (fileInput.files.length > 0) {
+        formData.append('referenceImage', fileInput.files[0]);
+      }
+
+      try {
+        const response = await fetch('/generate-image5', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await response.json();
+        if (response.ok) {
+          preview5.src = data.image_url;
+          status5.textContent = `Revised prompt: ${data.revised_prompt}`;
+        } else {
+          status5.textContent = `Error: ${data.error}`;
+        }
+      } catch (err) {
+        console.error(err);
+        status5.textContent = 'Connection failed – is the server running?';
+      } finally {
+        preview5.classList.remove('loading');
+      }
+    });
+  </script>
+</body>
+</html>

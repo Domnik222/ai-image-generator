@@ -15,6 +15,12 @@ app.set('trust proxy', 1);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Ensure uploads directory exists
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
 // OpenAI client
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -44,7 +50,7 @@ const styleProfiles = JSON.parse(fs.readFileSync(profilesPath, 'utf-8'));
 
 // Multer disk storage for uploads, preserving extension
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, path.join(__dirname, 'uploads')),
+  destination: (req, file, cb) => cb(null, uploadsDir),
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
     cb(null, `${Date.now()}${ext}`);
@@ -84,7 +90,7 @@ app.post(
       // Write out white mask PNG
       const maskBase64 =
         'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8Xw8AAoMBgQHtC/YAAAAASUVORK5CYII=';
-      const maskPath = path.join(__dirname, 'uploads', `mask-${Date.now()}.png`);
+      const maskPath = path.join(uploadsDir, `mask-${Date.now()}.png`);
       fs.writeFileSync(maskPath, Buffer.from(maskBase64, 'base64'));
 
       // Create streams for image and mask

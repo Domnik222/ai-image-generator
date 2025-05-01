@@ -48,19 +48,19 @@
     .loading {
       filter: blur(5px);
     }
+    #status5 {
+      margin-top: 10px;
+      color: #333;
+      white-space: pre-wrap;
+    }
   </style>
 </head>
 <body>
   <h1>Agent 5: Soft Translucent Glass Render</h1>
 
   <form id="imageForm5" enctype="multipart/form-data">
-    <label for="prompt5">Prompt</label>
-    <textarea id="prompt5" rows="3" readonly>
-A soft, 3D translucent glass of the attached image with a frosty matte finish and detailed texture, original colors, centered on a light gray background, floats gently in space, soft shadows, natural lighting
-    </textarea>
-
     <label for="referenceImage5">Upload Reference Image</label>
-    <input type="file" id="referenceImage5" name="referenceImage" accept="image/*" />
+    <input type="file" id="referenceImage5" name="referenceImage" accept="image/*" required />
 
     <button type="submit">Generate Glass Render</button>
   </form>
@@ -77,31 +77,51 @@ A soft, 3D translucent glass of the attached image with a frosty matte finish an
 
     form5.addEventListener('submit', async (e) => {
       e.preventDefault();
+      status5.textContent = 'Submitting...';
+      preview5.removeAttribute('src');
       preview5.classList.add('loading');
-      status5.textContent = 'Generating...';
+
+      const fileInput = document.getElementById('referenceImage5');
+      if (!fileInput.files.length) {
+        status5.textContent = 'Please select a file.';
+        return;
+      }
 
       const formData = new FormData();
-      formData.append('prompt', document.getElementById('prompt5').value.trim());
-      const fileInput = document.getElementById('referenceImage5');
-      if (fileInput.files.length > 0) {
-        formData.append('referenceImage', fileInput.files[0]);
-      }
+      formData.append('referenceImage', fileInput.files[0]);
 
       try {
         const response = await fetch('/generate-image5', {
           method: 'POST',
           body: formData
         });
-        const data = await response.json();
-        if (response.ok) {
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          status5.textContent = `Server error (${response.status}): ${errorText}`;
+          preview5.classList.remove('loading');
+          return;
+        }
+
+        let data;
+        try {
+          data = await response.json();
+        } catch (jsonErr) {
+          const text = await response.text();
+          status5.textContent = `Invalid server response: ${text}`;
+          preview5.classList.remove('loading');
+          return;
+        }
+
+        if (data.error) {
+          status5.textContent = `Error: ${data.error}`;
+        } else {
           preview5.src = data.image_url;
           status5.textContent = `Revised prompt: ${data.revised_prompt}`;
-        } else {
-          status5.textContent = `Error: ${data.error}`;
         }
       } catch (err) {
         console.error(err);
-        status5.textContent = 'Connection failed – is the server running?';
+        status5.textContent = 'Connection failed – please try again.';
       } finally {
         preview5.classList.remove('loading');
       }

@@ -22,14 +22,16 @@
 <body>
   <h1>Agent 6: Glassy Objects</h1>
 
-  <form id="imageForm">
+  <form id="imageForm" enctype="multipart/form-data">
+    <input type="file" id="imageFile" name="image" accept="image/*" />
+    <br /><br />
     <textarea
       id="prompt"
       placeholder="Describe the glassy object you want to generate..."
       rows="4"
       style="width: 100%"
     ></textarea>
-    <br />
+    <br /><br />
     <button type="submit">Generate Object</button>
   </form>
 
@@ -50,15 +52,16 @@
       status.textContent = 'Generating...';
 
       try {
-        // Change the endpoint to /generate-image6 for Agent 6
+        const formData = new FormData();
+        const fileInput = document.getElementById('imageFile');
+        if (fileInput.files.length > 0) {
+          formData.append('image', fileInput.files[0]);
+        }
+        formData.append('prompt', document.getElementById('prompt').value);
+
         const response = await fetch('/generate-image6', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            prompt: document.getElementById('prompt').value,
-          }),
+          body: formData
         });
 
         const data = await response.json();

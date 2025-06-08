@@ -17,7 +17,7 @@
   <h1>Agent 5: Prompt-Based Image Generator</h1>
 
   <form id="imageForm5" enctype="multipart/form-data">
-    <textarea id="prompt5" placeholder="Describe your image here using {resolution}" rows="4"></textarea>
+    <textarea id="prompt5" placeholder="Describe your image here..." rows="4"></textarea>
 
     <div class="btn-group">
       <strong>Select Resolution:</strong>
@@ -37,42 +37,56 @@
   </div>
 
   <script>
-    let selectedResolution = '1024x1024'; // default
+    let selectedResolution = '1024x1024';
 
     function setResolution(res) {
       selectedResolution = res;
+      document.getElementById('status5').textContent = `Selected resolution: ${res}`;
     }
 
     const form = document.getElementById('imageForm5');
     const preview = document.getElementById('preview5');
     const status = document.getElementById('status5');
 
+    const promptTemplate = "A high-quality image of: {prompt}, rendered in {resolution} resolution, with clarity and aesthetic lighting.";
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       status.textContent = 'Generating...';
       preview.classList.add('loading');
 
+      const userInput = document.getElementById('prompt5').value.trim();
+      if (!userInput) {
+        alert("Please enter a prompt.");
+        return;
+      }
+
+      const finalPrompt = promptTemplate
+        .replace('{prompt}', userInput)
+        .replace('{resolution}', selectedResolution);
+
+      console.log("Final prompt:", finalPrompt);
+
       const formData = new FormData();
-      const rawPrompt = document.getElementById('prompt5').value;
-      const finalPrompt = rawPrompt.replace('{resolution}', selectedResolution);
       formData.append('prompt', finalPrompt);
+      formData.append('size', selectedResolution);
 
       const imageFile = document.getElementById('imageInput5').files[0];
       if (imageFile) {
         formData.append('image', imageFile);
       }
 
-      console.log('Final prompt:', finalPrompt);
-
       try {
         const response = await fetch('/generate-image5', {
           method: 'POST',
           body: formData
         });
+
         const data = await response.json();
 
         if (response.ok) {
           preview.src = data.image_url;
+          preview.style.display = 'block';
           status.textContent = `Revised prompt: ${data.revised_prompt}`;
         } else {
           status.textContent = `Error: ${data.error}`;

@@ -9,10 +9,10 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3001;
 
-// Load styles from stylesprofiles.json
+// Load style profiles
 const styleProfiles = JSON.parse(fs.readFileSync(path.resolve('styleprofiles.json'), 'utf-8'));
 
-// Initialize OpenAI client
+// OpenAI setup
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 // Middleware
@@ -20,7 +20,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.resolve('src/public')));
 
-// Validate prompt
+// Prompt validation
 function validatePrompt(prompt, res) {
   if (!prompt || typeof prompt !== 'string' || prompt.trim().length < 5) {
     res.status(400).json({ error: 'Prompt must be a meaningful non-empty string.' });
@@ -29,21 +29,24 @@ function validatePrompt(prompt, res) {
   return true;
 }
 
-// Helper to get description from styleProfiles
-function getStylePrompt(styleKey) {
-  return styleProfiles[styleKey]?.description || 'Refine the prompt for creative AI image generation.';
+// Extract resolution from prompt (e.g., 1024x1024, 1024x1792, etc.)
+function extractResolution(prompt) {
+  const match = prompt.match(/(1024x1024|1024x1792|1792x1024)/);
+  return match ? match[1] : '1024x1024'; // default fallback
 }
 
-// Route generator
-function createAgentRoute(agentNumber, imageSize = '1024x1024') {
+// Generate route for any agent number
+function createAgentRoute(agentNumber) {
   app.post(`/generate-image${agentNumber}`, async (req, res) => {
     const { prompt } = req.body;
     if (!validatePrompt(prompt, res)) return;
 
     try {
       const styleKey = `style${agentNumber}`;
-      const systemMessage = getStylePrompt(styleKey);
+      const systemMessage = styleProfiles[styleKey]?.description || 'Refine the prompt for artistic AI image generation.';
+      const size = extractResolution(prompt);
 
+      // GPT-4o mini prompt refinement
       const refined = await openai.chat.completions.create({
         model: 'gpt-4o-mini',
         messages: [
@@ -57,7 +60,7 @@ function createAgentRoute(agentNumber, imageSize = '1024x1024') {
       const result = await openai.images.generate({
         model: 'dall-e-3',
         prompt: revised_prompt,
-        size: imageSize,
+        size,
         n: 1,
       });
 
@@ -69,20 +72,15 @@ function createAgentRoute(agentNumber, imageSize = '1024x1024') {
   });
 }
 
-// Create routes for agents 1–6
-createAgentRoute(1);
-createAgentRoute(2);
-createAgentRoute(3, '1024x768'); // Blueprint style
-createAgentRoute(4);
-createAgentRoute(5);
-createAgentRoute(6);
+// Create all agent routes
+[1, 2, 3, 4, 5, 6].forEach(n => createAgentRoute(n));
 
 // Health check
 app.get('/health', (req, res) => {
   res.send('OK');
 });
 
-// Catch-all
+// 404 fallback
 app.use((req, res) => {
   res.status(404).json({ error: `Route ${req.originalUrl} not found.` });
 });

@@ -6,6 +6,7 @@
   <style>
     body { font-family: Arial; padding: 20px; max-width: 700px; margin: auto; }
     button { margin: 5px; }
+    textarea { width: 100%; height: 100px; }
     #preview { max-width: 100%; margin-top: 20px; display: none; }
     .loading { filter: blur(4px); }
     #status { font-weight: bold; margin-top: 10px; }
@@ -14,6 +15,10 @@
 <body>
 
 <h1>Minimalist 3D Render Generator</h1>
+
+<p>Use <code>{resolution}</code> in your prompt to describe output quality (e.g., "A soft 3D object in {resolution} resolution").</p>
+
+<textarea id="promptInput" placeholder="Describe the scene using {resolution} as a placeholder."></textarea>
 
 <h3>Select Resolution:</h3>
 <div>
@@ -32,9 +37,6 @@
 </div>
 
 <script>
-  // Hardcoded prompt with a placeholder
-  const basePrompt = "A minimalist 3D render of a soft matte object in {resolution} resolution with subtle lighting.";
-
   let selectedResolution = '1024x1024';
 
   function setResolution(res) {
@@ -45,7 +47,11 @@
   document.getElementById('imageForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const finalPrompt = basePrompt.replace('{resolution}', selectedResolution);
+    const prompt = document.getElementById('promptInput').value.trim();
+    if (!prompt.includes('{resolution}')) {
+      alert('Prompt must include {resolution}.');
+      return;
+    }
 
     const preview = document.getElementById('preview');
     const status = document.getElementById('status');
@@ -58,7 +64,7 @@
       const response = await fetch('/generate-image2', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: finalPrompt })
+        body: JSON.stringify({ prompt, size: selectedResolution }) // send both
       });
 
       const data = await response.json();

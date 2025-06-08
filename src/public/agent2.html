@@ -4,27 +4,48 @@
   <meta charset="UTF-8" />
   <title>Agent 2 – 3D Render Generator</title>
   <style>
-    body { font-family: Arial; padding: 20px; max-width: 700px; margin: auto; }
-    button { margin: 5px; }
-    textarea { width: 100%; height: 100px; }
-    #preview { max-width: 100%; margin-top: 20px; display: none; }
-    .loading { filter: blur(4px); }
-    #status { font-weight: bold; margin-top: 10px; }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 700px;
+      margin: auto;
+    }
+    textarea {
+      width: 100%;
+      height: 100px;
+      font-size: 16px;
+      padding: 10px;
+    }
+    button {
+      margin: 5px;
+      padding: 8px 14px;
+    }
+    #preview {
+      max-width: 100%;
+      margin-top: 20px;
+      display: none;
+    }
+    .loading {
+      filter: blur(4px);
+    }
+    #status {
+      font-weight: bold;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
 
 <h1>Minimalist 3D Render Generator</h1>
 
-<p>Use <code>{resolution}</code> in your prompt to describe output quality (e.g., "A soft 3D object in {resolution} resolution").</p>
-
-<textarea id="promptInput" placeholder="Describe the scene using {resolution} as a placeholder."></textarea>
+<p>Describe what you want rendered:</p>
+<textarea id="userPrompt" placeholder="e.g. A smooth glass vase on a table."></textarea>
 
 <h3>Select Resolution:</h3>
 <div>
-  <button onclick="setResolution('1024x1024')">1024x1024</button>
-  <button onclick="setResolution('1024x1792')">1024x1792</button>
-  <button onclick="setResolution('1792x1024')">1792x1024</button>
+  <button type="button" onclick="setResolution('1024x1024')">1024x1024</button>
+  <button type="button" onclick="setResolution('1024x1792')">1024x1792</button>
+  <button type="button" onclick="setResolution('1792x1024')">1792x1024</button>
 </div>
 
 <form id="imageForm">
@@ -37,6 +58,9 @@
 </div>
 
 <script>
+  // Template that combines hidden placeholders
+  const promptTemplate = "A minimalist 3D render of: {prompt}, in {resolution} resolution with soft lighting and matte surface.";
+
   let selectedResolution = '1024x1024';
 
   function setResolution(res) {
@@ -47,14 +71,19 @@
   document.getElementById('imageForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const prompt = document.getElementById('promptInput').value.trim();
-    if (!prompt.includes('{resolution}')) {
-      alert('Prompt must include {resolution}.');
+    const userInput = document.getElementById('userPrompt').value.trim();
+    if (!userInput) {
+      alert('Please enter a description.');
       return;
     }
 
-    const preview = document.getElementById('preview');
+    // Inject user's text and selected resolution into the hidden template
+    const finalPrompt = promptTemplate
+      .replace('{prompt}', userInput)
+      .replace('{resolution}', selectedResolution);
+
     const status = document.getElementById('status');
+    const preview = document.getElementById('preview');
 
     status.textContent = 'Generating image...';
     preview.classList.add('loading');
@@ -64,7 +93,7 @@
       const response = await fetch('/generate-image2', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, size: selectedResolution }) // send both
+        body: JSON.stringify({ prompt: finalPrompt, size: selectedResolution })
       });
 
       const data = await response.json();
@@ -72,13 +101,13 @@
       if (response.ok) {
         preview.src = data.image_url;
         preview.style.display = 'block';
-        status.textContent = `Image generated successfully.`;
+        status.textContent = 'Image generated successfully.';
       } else {
-        status.textContent = `Error: ${data.error || 'Unknown error'}`;
+        status.textContent = `Error: ${data.error || 'Unknown error.'}`;
       }
     } catch (err) {
       console.error(err);
-      status.textContent = 'Request failed — server error.';
+      status.textContent = 'Failed to reach server.';
     } finally {
       preview.classList.remove('loading');
     }

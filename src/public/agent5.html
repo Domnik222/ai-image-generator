@@ -1,34 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Agent 5: Prompt & Image Upload</title>
+  <meta charset="UTF-8" />
+  <title>Agent 5: Glass Render Generator</title>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-    textarea { width: 100%; padding: 10px; margin-bottom: 10px; }
-    .btn-group { margin-bottom: 10px; }
-    .btn-group button { margin-right: 5px; padding: 8px 12px; }
-    input[type="file"] { margin-top: 10px; }
-    #preview5 { display: block; margin-top: 20px; max-width: 100%; }
-    .loading { filter: blur(5px); }
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    textarea, input[type="file"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #357ab8;
+    }
+    #preview5 {
+      display: block;
+      margin-top: 20px;
+      max-width: 100%;
+    }
+    .resolution-btn {
+      margin-right: 10px;
+      margin-top: 10px;
+      padding: 8px 16px;
+      border: 1px solid #ccc;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    .resolution-btn.selected {
+      background-color: #4a90e2;
+      color: white;
+    }
   </style>
 </head>
 <body>
-  <h1>Agent 5: Prompt-Based Image Generator</h1>
+  <h1>Agent 5: Glass Render Generator</h1>
 
   <form id="imageForm5" enctype="multipart/form-data">
-    <textarea id="prompt5" placeholder="Describe your image here..." rows="4"></textarea>
+    <label for="prompt5">Prompt</label>
+    <textarea id="prompt5" placeholder="Describe what should be rendered..." rows="4"></textarea>
 
-    <div class="btn-group">
-      <strong>Select Resolution:</strong>
-      <button type="button" onclick="setResolution('1024x1024')">1024x1024</button>
-      <button type="button" onclick="setResolution('1024x1792')">1024x1792</button>
-      <button type="button" onclick="setResolution('1792x1024')">1792x1024</button>
-    </div>
+    <label>Choose resolution:</label><br />
+    <button type="button" class="resolution-btn" data-size="1024x1024">1024×1024</button>
+    <button type="button" class="resolution-btn" data-size="1024x1792">1024×1792</button>
+    <button type="button" class="resolution-btn" data-size="1792x1024">1792×1024</button>
 
-    <input type="file" name="image" id="imageInput5" accept="image/*">
+    <br /><br />
+    <label for="image5">Optional image upload:</label>
+    <input type="file" id="image5" name="image" accept="image/png,image/jpeg,image/webp" />
 
-    <button type="submit">Generate Image</button>
+    <button type="submit">Generate</button>
   </form>
 
   <div id="result5">
@@ -37,44 +73,31 @@
   </div>
 
   <script>
+    const form5 = document.getElementById('imageForm5');
+    const preview5 = document.getElementById('preview5');
+    const status5 = document.getElementById('status5');
     let selectedResolution = '1024x1024';
 
-    function setResolution(res) {
-      selectedResolution = res;
-      document.getElementById('status5').textContent = `Selected resolution: ${res}`;
-    }
+    document.querySelectorAll('.resolution-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        selectedResolution = btn.getAttribute('data-size');
+        document.querySelectorAll('.resolution-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+      });
+    });
 
-    const form = document.getElementById('imageForm5');
-    const preview = document.getElementById('preview5');
-    const status = document.getElementById('status5');
-
-    const promptTemplate = "A high-quality image of: {prompt}, rendered in {resolution} resolution, with clarity and aesthetic lighting.";
-
-    form.addEventListener('submit', async (e) => {
+    form5.addEventListener('submit', async (e) => {
       e.preventDefault();
-      status.textContent = 'Generating...';
-      preview.classList.add('loading');
-
-      const userInput = document.getElementById('prompt5').value.trim();
-      if (!userInput) {
-        alert("Please enter a prompt.");
-        return;
-      }
-
-      const finalPrompt = promptTemplate
-        .replace('{prompt}', userInput)
-        .replace('{resolution}', selectedResolution);
-
-      console.log("Final prompt:", finalPrompt);
-
       const formData = new FormData();
-      formData.append('prompt', finalPrompt);
-      formData.append('size', selectedResolution);
+      const prompt = document.getElementById('prompt5').value;
+      const image = document.getElementById('image5').files[0];
 
-      const imageFile = document.getElementById('imageInput5').files[0];
-      if (imageFile) {
-        formData.append('image', imageFile);
-      }
+      formData.append('prompt', prompt);
+      formData.append('size', selectedResolution);
+      if (image) formData.append('image', image);
+
+      preview5.classList.add('loading');
+      status5.textContent = 'Generating...';
 
       try {
         const response = await fetch('/generate-image5', {
@@ -85,17 +108,16 @@
         const data = await response.json();
 
         if (response.ok) {
-          preview.src = data.image_url;
-          preview.style.display = 'block';
-          status.textContent = `Revised prompt: ${data.revised_prompt}`;
+          preview5.src = data.image_url;
+          status5.textContent = `Final prompt used: ${data.revised_prompt}`;
         } else {
-          status.textContent = `Error: ${data.error}`;
+          status5.textContent = `Error: ${data.error}`;
         }
       } catch (err) {
         console.error(err);
-        status.textContent = 'Connection failed – is the server running?';
+        status5.textContent = 'Connection failed – is the server running?';
       } finally {
-        preview.classList.remove('loading');
+        preview5.classList.remove('loading');
       }
     });
   </script>

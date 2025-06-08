@@ -2,36 +2,86 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Upload Image</title>
+  <title>Agent 5: Prompt & Image Upload</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+    textarea { width: 100%; padding: 10px; margin-bottom: 10px; }
+    .btn-group { margin-bottom: 10px; }
+    .btn-group button { margin-right: 5px; padding: 8px 12px; }
+    input[type="file"] { margin-top: 10px; }
+    #preview5 { display: block; margin-top: 20px; max-width: 100%; }
+    .loading { filter: blur(5px); }
+  </style>
 </head>
 <body>
-  <h1>Generate Image 5</h1>
-  <form id="imageForm" enctype="multipart/form-data" method="POST">
-    <input type="file" name="image" accept="image/png, image/jpeg, image/webp" required />
-    <button type="submit">Upload and Generate</button>
+  <h1>Agent 5: Prompt-Based Image Generator</h1>
+
+  <form id="imageForm5" enctype="multipart/form-data">
+    <textarea id="prompt5" placeholder="Describe your image here using {resolution}" rows="4"></textarea>
+
+    <div class="btn-group">
+      <strong>Select Resolution:</strong>
+      <button type="button" onclick="setResolution('1024x1024')">1024x1024</button>
+      <button type="button" onclick="setResolution('1024x1792')">1024x1792</button>
+      <button type="button" onclick="setResolution('1792x1024')">1792x1024</button>
+    </div>
+
+    <input type="file" name="image" id="imageInput5" accept="image/*">
+
+    <button type="submit">Generate Image</button>
   </form>
 
-  <div id="result"></div>
+  <div id="result5">
+    <img id="preview5" src="" alt="Generated image" />
+    <p id="status5"></p>
+  </div>
 
   <script>
-    const form = document.getElementById('imageForm');
+    let selectedResolution = '1024x1024'; // default
+
+    function setResolution(res) {
+      selectedResolution = res;
+    }
+
+    const form = document.getElementById('imageForm5');
+    const preview = document.getElementById('preview5');
+    const status = document.getElementById('status5');
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const formData = new FormData(form);
+      status.textContent = 'Generating...';
+      preview.classList.add('loading');
+
+      const formData = new FormData();
+      const rawPrompt = document.getElementById('prompt5').value;
+      const finalPrompt = rawPrompt.replace('{resolution}', selectedResolution);
+      formData.append('prompt', finalPrompt);
+
+      const imageFile = document.getElementById('imageInput5').files[0];
+      if (imageFile) {
+        formData.append('image', imageFile);
+      }
+
+      console.log('Final prompt:', finalPrompt);
+
       try {
         const response = await fetch('/generate-image5', {
           method: 'POST',
           body: formData
         });
-        if (!response.ok) throw new Error(`Server error: ${response.status}`);
         const data = await response.json();
-        document.getElementById('result').innerHTML = `
-          <p>Image generated!</p>
-          <img src="${data.data[0].url}" alt="Generated Image" width="512">
-        `;
+
+        if (response.ok) {
+          preview.src = data.image_url;
+          status.textContent = `Revised prompt: ${data.revised_prompt}`;
+        } else {
+          status.textContent = `Error: ${data.error}`;
+        }
       } catch (err) {
-        console.error('❌ Error:', err);
-        document.getElementById('result').textContent = `Error: ${err.message}`;
+        console.error(err);
+        status.textContent = 'Connection failed – is the server running?';
+      } finally {
+        preview.classList.remove('loading');
       }
     });
   </script>

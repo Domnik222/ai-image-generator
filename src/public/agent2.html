@@ -2,79 +2,77 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Agent 2 - AI Image Generator</title>
+  <title>Agent 2 – 3D Render Generator</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-    #preview {
-      margin-top: 20px;
-      max-width: 100%;
-    }
-    .loading {
-      filter: blur(5px);
-    }
+    body { font-family: Arial; padding: 20px; max-width: 700px; margin: auto; }
+    button { margin: 5px; }
+    #preview { max-width: 100%; margin-top: 20px; }
   </style>
 </head>
 <body>
-  <h1>Agent 2: Cyberdreams AI</h1>
 
-  <form id="imageForm">
-    <textarea
-      id="prompt"
-      placeholder="Describe the image you want to generate..."
-      rows="4"
-      style="width: 100%"
-    ></textarea>
-    <br />
-    <button type="submit">Generate Image</button>
-  </form>
+<h1>Minimalist 3D Render Generator</h1>
 
-  <div id="result">
-    <img id="preview" src="" alt="Generated image" />
-    <p id="status"></p>
-  </div>
+<textarea id="promptInput" rows="4" style="width: 100%;">
+A minimalist 3D render of a single object in {resolution} resolution with soft shadows and matte surface.
+</textarea>
 
-  <script>
-    const form = document.getElementById('imageForm');
-    const preview = document.getElementById('preview');
-    const status = document.getElementById('status');
+<h3>Select Resolution:</h3>
+<div>
+  <button onclick="setResolution('1024x1024')">1024x1024</button>
+  <button onclick="setResolution('1024x1792')">1024x1792</button>
+  <button onclick="setResolution('1792x1024')">1792x1024</button>
+</div>
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
+<form id="imageForm">
+  <button type="submit">Generate Image</button>
+</form>
 
-      preview.classList.add('loading');
-      status.textContent = 'Generating...';
+<div id="result">
+  <img id="preview" src="" alt="">
+  <p id="status"></p>
+</div>
 
-      try {
-        const response = await fetch('/generate-image2', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            prompt: document.getElementById('prompt').value,
-          }),
-        });
+<script>
+  let selectedResolution = '1024x1024';
 
-        const data = await response.json();
+  function setResolution(res) {
+    selectedResolution = res;
+    document.getElementById('status').textContent = `Selected resolution: ${res}`;
+  }
 
-        if (response.ok) {
-          preview.src = data.image_url;
-          status.textContent = `Revised prompt: ${data.revised_prompt}`;
-        } else {
-          status.textContent = `Error: ${data.error}`;
-        }
-      } catch (err) {
-        console.error(err);
-        status.textContent = 'Connection failed - is the server running?';
-      } finally {
-        preview.classList.remove('loading');
+  document.getElementById('imageForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const rawPrompt = document.getElementById('promptInput').value.trim();
+    if (!rawPrompt.includes('{resolution}')) {
+      alert('Your prompt must include {resolution} placeholder.');
+      return;
+    }
+
+    const prompt = rawPrompt.replace('{resolution}', selectedResolution);
+
+    try {
+      const res = await fetch('/generate-image2', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        document.getElementById('preview').src = data.image_url;
+        document.getElementById('status').textContent = `Prompt used: ${data.revised_prompt}`;
+      } else {
+        document.getElementById('status').textContent = `Error: ${data.error}`;
       }
-    });
-  </script>
+    } catch (err) {
+      console.error(err);
+      document.getElementById('status').textContent = 'Request failed.';
+    }
+  });
+</script>
+
 </body>
 </html>

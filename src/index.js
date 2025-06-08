@@ -1,16 +1,16 @@
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
-import fs from 'fs';
 import { OpenAI } from 'openai';
 import dotenv from 'dotenv';
+import multer from 'multer';
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3001;
 
-// Load style profiles JSON
-const styleProfiles = JSON.parse(fs.readFileSync(path.resolve('styleprofiles.json'), 'utf-8'));
+// Set up multer for image upload
+const upload = multer({ storage: multer.memoryStorage() });
 
 // Initialize OpenAI client
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -20,73 +20,62 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.resolve('src/public')));
 
-// Validate prompt
 function validatePrompt(prompt, res) {
-  if (!prompt || typeof prompt !== 'string' || prompt.trim().length < 5) {
-    res.status(400).json({ error: 'Prompt must be a meaningful non-empty string.' });
+  if (!prompt || typeof prompt !== 'string' || prompt.trim() === '') {
+    res.status(400).json({ error: 'Prompt is required and must be a non-empty string.' });
     return false;
   }
   return true;
 }
 
-// Validate resolution
-function validateSize(size) {
-  const allowed = ['1024x1024', '1024x1792', '1792x1024'];
-  return allowed.includes(size) ? size : '1024x1024';
-}
+// Agent 5: With optional image upload and resolution
+app.post('/generate-image5', upload.single('image'), async (req, res) => {
+  const prompt = req.body.prompt;
+  const size = req.body.size || '1024x1024';
 
-// Create route generator
-function createAgentRoute(agentNumber) {
-  app.post(`/generate-image${agentNumber}`, async (req, res) => {
-    const { prompt, size } = req.body;
-    if (!validatePrompt(prompt, res)) return;
-    const selectedSize = validateSize(size);
+  if (!validatePrompt(prompt, res)) return;
 
-    try {
-      const styleKey = `style${agentNumber}`;
-      const systemMessage = styleProfiles[styleKey]?.description || 'Refine the prompt for image generation.';
+  try {
+    const messages = [
+      { role: 'system', content: 'Refine the user prompt for image generation.' },
+      { role: 'user', content: prompt }
+    ];
 
-      // Use GPT to refine user prompt
-      const refined = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: systemMessage },
-          { role: 'user', content: prompt },
-        ],
-      });
+    const refined = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages
+    });
 
-      const revised_prompt = refined.choices?.[0]?.message?.content || prompt;
+    const revised_prompt = refined.choices?.[0]?.message?.content || prompt;
 
-      // Generate image
-      const result = await openai.images.generate({
-        model: 'dall-e-3',
-        prompt: revised_prompt,
-        size: selectedSize,
-        n: 1,
-      });
+    // Log final prompt
+    console.log('Final prompt (Agent 5):', revised_prompt);
 
-      res.json({ image_url: result.data[0].url, revised_prompt });
-    } catch (err) {
-      console.error(`Error in /generate-image${agentNumber}:`, err);
-      res.status(500).json({ error: err.message });
-    }
-  });
-}
+    const imageOptions = {
+      model: 'dall-e-3',
+      prompt: revised_prompt,
+      size,
+      n: 1,
+    };
 
-// Set up all agent routes
-[1, 2, 3, 4, 5, 6].forEach(n => createAgentRoute(n));
+    const genResult = await openai.images.generate(imageOptions);
+
+    res.json({
+      image_url: genResult.data[0].url,
+      revised_prompt
+    });
+  } catch (err) {
+    console.error('Error in /generate-image5:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // Health check
 app.get('/health', (req, res) => {
   res.send('OK');
 });
 
-// Catch-all
-app.use((req, res) => {
-  res.status(404).json({ error: `Route ${req.originalUrl} not found.` });
-});
-
 // Start server
 app.listen(port, () => {
-  console.log(`✅ Server running on http://localhost:${port}`);
+  console.log(`Server running on http://localhost:${port}`);
 });

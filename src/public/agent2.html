@@ -6,16 +6,14 @@
   <style>
     body { font-family: Arial; padding: 20px; max-width: 700px; margin: auto; }
     button { margin: 5px; }
-    #preview { max-width: 100%; margin-top: 20px; }
+    #preview { max-width: 100%; margin-top: 20px; display: none; }
+    .loading { filter: blur(4px); }
+    #status { font-weight: bold; margin-top: 10px; }
   </style>
 </head>
 <body>
 
 <h1>Minimalist 3D Render Generator</h1>
-
-<textarea id="promptInput" rows="4" style="width: 100%;">
-A minimalist 3D render of a single object in {resolution} resolution with soft shadows and matte surface.
-</textarea>
 
 <h3>Select Resolution:</h3>
 <div>
@@ -29,11 +27,14 @@ A minimalist 3D render of a single object in {resolution} resolution with soft s
 </form>
 
 <div id="result">
-  <img id="preview" src="" alt="">
+  <img id="preview" src="" alt="Preview image">
   <p id="status"></p>
 </div>
 
 <script>
+  // Hardcoded base prompt with placeholder
+  const basePrompt = "A minimalist 3D render of a soft matte object in {resolution} resolution, centered with soft shadows.";
+
   let selectedResolution = '1024x1024';
 
   function setResolution(res) {
@@ -44,32 +45,36 @@ A minimalist 3D render of a single object in {resolution} resolution with soft s
   document.getElementById('imageForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const rawPrompt = document.getElementById('promptInput').value.trim();
-    if (!rawPrompt.includes('{resolution}')) {
-      alert('Your prompt must include {resolution} placeholder.');
-      return;
-    }
+    const finalPrompt = basePrompt.replace('{resolution}', selectedResolution);
 
-    const prompt = rawPrompt.replace('{resolution}', selectedResolution);
+    const preview = document.getElementById('preview');
+    const status = document.getElementById('status');
+
+    status.textContent = 'Generating image...';
+    preview.classList.add('loading');
+    preview.style.display = 'none';
 
     try {
-      const res = await fetch('/generate-image2', {
+      const response = await fetch('/generate-image2', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt })
+        body: JSON.stringify({ prompt: finalPrompt })
       });
 
-      const data = await res.json();
+      const data = await response.json();
 
-      if (res.ok) {
-        document.getElementById('preview').src = data.image_url;
-        document.getElementById('status').textContent = `Prompt used: ${data.revised_prompt}`;
+      if (response.ok) {
+        preview.src = data.image_url;
+        preview.style.display = 'block';
+        status.textContent = `Image generated successfully.`;
       } else {
-        document.getElementById('status').textContent = `Error: ${data.error}`;
+        status.textContent = `Error: ${data.error || 'Unknown error'}`;
       }
     } catch (err) {
       console.error(err);
-      document.getElementById('status').textContent = 'Request failed.';
+      status.textContent = 'Request failed — server error.';
+    } finally {
+      preview.classList.remove('loading');
     }
   });
 </script>

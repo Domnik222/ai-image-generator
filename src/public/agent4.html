@@ -45,18 +45,28 @@
     .loading {
       filter: blur(5px);
     }
+    .selectors {
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
   <h1>Agent 4: Blueprint Generator</h1>
 
   <form id="imageForm4">
-    <label for="prompt4">Prompt</label>
+    <label for="prompt4">Describe your object:</label>
     <textarea
       id="prompt4"
-      placeholder="Describe the blueprint you want to generate..."
+      placeholder="e.g. A technical sketch of a vintage airplane"
       rows="4"
     ></textarea>
+
+    <div class="selectors">
+      <label>Select Resolution:</label>
+      <button type="button" onclick="setResolution('1024x1024')">1024x1024</button>
+      <button type="button" onclick="setResolution('1024x1792')">1024x1792</button>
+      <button type="button" onclick="setResolution('1792x1024')">1792x1024</button>
+    </div>
 
     <label for="color1">Primary Color 1</label>
     <input type="color" id="color1" name="color1" value="#0000ff" />
@@ -79,18 +89,35 @@
     const form4 = document.getElementById('imageForm4');
     const preview4 = document.getElementById('preview4');
     const status4 = document.getElementById('status4');
+    let selectedResolution = '1024x1024';
+
+    function setResolution(res) {
+      selectedResolution = res;
+      status4.textContent = `Selected resolution: ${res}`;
+    }
+
+    const template = "A Bauhaus-style technical design sheet of: {prompt}, rendered in {resolution} resolution using primary colors {color1}, {color2}, and {color3}, aligned to a grid with minimalist labels.";
 
     form4.addEventListener('submit', async (e) => {
       e.preventDefault();
       preview4.classList.add('loading');
       status4.textContent = 'Generating...';
 
-      // Build a payload with text and colors
+      const userPrompt = document.getElementById('prompt4').value.trim();
+      const color1 = document.getElementById('color1').value;
+      const color2 = document.getElementById('color2').value;
+      const color3 = document.getElementById('color3').value;
+
+      const finalPrompt = template
+        .replace('{prompt}', userPrompt)
+        .replace('{resolution}', selectedResolution)
+        .replace('{color1}', color1)
+        .replace('{color2}', color2)
+        .replace('{color3}', color3);
+
       const payload = {
-        prompt: document.getElementById('prompt4').value,
-        color1: document.getElementById('color1').value,
-        color2: document.getElementById('color2').value,
-        color3: document.getElementById('color3').value
+        prompt: finalPrompt,
+        size: selectedResolution
       };
 
       try {
@@ -99,10 +126,11 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
+
         const data = await response.json();
         if (response.ok) {
           preview4.src = data.image_url;
-          status4.textContent = `Revised prompt: ${data.revised_prompt}`;
+          status4.textContent = `Image generated successfully.`;
         } else {
           status4.textContent = `Error: ${data.error}`;
         }

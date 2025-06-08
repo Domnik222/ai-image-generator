@@ -4,18 +4,19 @@ import path from 'path';
 import { OpenAI } from 'openai';
 import dotenv from 'dotenv';
 import multer from 'multer';
+import fs from 'fs';
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3001;
 
-// Set up multer for image upload
 const upload = multer({ storage: multer.memoryStorage() });
 
-// Initialize OpenAI client
+// Load style profiles
+const styleProfiles = JSON.parse(fs.readFileSync(path.resolve('styleprofiles.json'), 'utf-8'));
+
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.resolve('src/public')));
@@ -28,42 +29,37 @@ function validatePrompt(prompt, res) {
   return true;
 }
 
-// Agent 5: With optional image upload and resolution
+// Agent 5: Prompt-based Generation with style5 injection
 app.post('/generate-image5', upload.single('image'), async (req, res) => {
-  const prompt = req.body.prompt;
+  const userPrompt = req.body.prompt;
   const size = req.body.size || '1024x1024';
 
-  if (!validatePrompt(prompt, res)) return;
+  if (!validatePrompt(userPrompt, res)) return;
 
   try {
-    const messages = [
-      { role: 'system', content: 'Refine the user prompt for image generation.' },
-      { role: 'user', content: prompt }
-    ];
+    const stylePrompt = styleProfiles.style5?.prompt || '';
+    const combinedPrompt = `${stylePrompt} ${userPrompt}`;
+
+    console.log("Agent 5 Final Prompt:", combinedPrompt);
 
     const refined = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
-      messages
+      messages: [
+        { role: 'system', content: 'Refine the following prompt for 3D glass render image generation.' },
+        { role: 'user', content: combinedPrompt },
+      ],
     });
 
-    const revised_prompt = refined.choices?.[0]?.message?.content || prompt;
+    const revisedPrompt = refined.choices?.[0]?.message?.content || combinedPrompt;
 
-    // Log final prompt
-    console.log('Final prompt (Agent 5):', revised_prompt);
-
-    const imageOptions = {
+    const genResult = await openai.images.generate({
       model: 'dall-e-3',
-      prompt: revised_prompt,
+      prompt: revisedPrompt,
       size,
       n: 1,
-    };
-
-    const genResult = await openai.images.generate(imageOptions);
-
-    res.json({
-      image_url: genResult.data[0].url,
-      revised_prompt
     });
+
+    res.json({ image_url: genResult.data[0].url, revised_prompt: revisedPrompt });
   } catch (err) {
     console.error('Error in /generate-image5:', err);
     res.status(500).json({ error: err.message });
@@ -75,7 +71,6 @@ app.get('/health', (req, res) => {
   res.send('OK');
 });
 
-// Start server
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });

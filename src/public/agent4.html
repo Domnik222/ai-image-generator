@@ -115,6 +115,8 @@
         .replace('{color2}', color2)
         .replace('{color3}', color3);
 
+      console.log("Final prompt:", finalPrompt);
+
       const payload = {
         prompt: finalPrompt,
         size: selectedResolution

@@ -2,22 +2,47 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>AI Image Generator</title>
+  <title>Agent 1 – AI Logo Generator</title>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-    #preview { margin-top: 20px; max-width: 100%; }
-    .loading { filter: blur(5px); }
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    textarea {
+      width: 100%;
+      font-size: 16px;
+      padding: 10px;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+    #preview {
+      margin-top: 20px;
+      max-width: 100%;
+      display: none;
+    }
+    .loading {
+      filter: blur(5px);
+    }
+    #status {
+      margin-top: 10px;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
-  <h1>Generate AI Art</h1>
+  <h1>Minimalist Logo Generator</h1>
   
   <form id="imageForm">
     <textarea 
       id="prompt" 
       placeholder="Describe the image you want to generate..." 
       rows="4"
-      style="width: 100%"
+      required
     ></textarea>
     <br>
     <button type="submit">Generate Image</button>
@@ -32,32 +57,39 @@
     const form = document.getElementById('imageForm');
     const preview = document.getElementById('preview');
     const status = document.getElementById('status');
+    const promptInput = document.getElementById('prompt');
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      
+
+      const prompt = promptInput.value.trim();
+      if (prompt.length < 5) {
+        status.textContent = 'Please enter a meaningful prompt (5+ characters).';
+        return;
+      }
+
       preview.classList.add('loading');
-      status.textContent = 'Generating...';
+      status.textContent = 'Generating image...';
+      preview.style.display = 'none';
 
       try {
-        const response = await fetch('/generate-image', {
+        const response = await fetch('/generate-image5', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            prompt: document.getElementById('prompt').value
-          })
+          body: JSON.stringify({ prompt })
         });
 
         const data = await response.json();
-        
+
         if (response.ok) {
           preview.src = data.image_url;
+          preview.style.display = 'block';
           status.textContent = `Revised prompt: ${data.revised_prompt}`;
         } else {
-          status.textContent = `Error: ${data.error}`;
+          status.textContent = `Error: ${data.error || 'Something went wrong.'}`;
         }
-        
       } catch (err) {
+        console.error(err);
         status.textContent = 'Connection failed - is the server running?';
       } finally {
         preview.classList.remove('loading');
